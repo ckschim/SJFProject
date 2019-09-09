@@ -13,17 +13,13 @@ def append_messages(message, box, file="Messages.txt"):
 
 
 def read_messages(box, file="Messages.txt"):
-    print(file)
-
-
-
 
     with open(file, "r" ) as f:
         line = f.readline()
         while line:
                 line = f.readline()
                 try:
-                    box.decrypt(line)
+                   print(box.decrypt(line))
                 except:
                     pass
 
