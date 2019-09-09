@@ -6,9 +6,9 @@ def append_messages(message, box, file="Messages.txt"):
 
     encrypted_message = box.encrypt(message)
 
-    with open(file, "a") as myfile:
-        myfile.write(encrypted_message)
-        myfile.write("\n")
+    with open(file, "a") as f:
+        f.write(encrypted_message)
+        f.write("\n")
 
 
 def read_messages(box, file="Messages.txt"):
