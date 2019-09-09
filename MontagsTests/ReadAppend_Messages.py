@@ -16,6 +16,6 @@ def read_messages(box, file="Messages.txt"):
         while line:
             line = f.readline()
             try:
-                print(box.decrypt(line))
+                print(box.decrypt(line, encoder=nacl.encoding.Base64Encoder))
             except:
                 pass
