@@ -1,7 +1,5 @@
 import nacl.utils
-import base64
 import os.path
-import base64
 import MontagsTests.ReadAppend_Messages as ra
 from nacl.public import PrivateKey
 from nacl.public import Box
@@ -25,14 +23,15 @@ def start():
             publickey64 = myfile.readline()
             secretkey64 = myfile.readline()
 
-        publickey = base64.b64decode(publickey64.encode("utf8"))
-        secretkey = base64.b64decode(secretkey64.encode("utf8"))
+        publickey = nacl.public.PublicKey(publickey64, nacl.encoding.Base64Encoder)
+        secretkey = nacl.public.PrivateKey(secretkey64, nacl.encoding.Base64Encoder)
+        print(secretkey)
     return secretkey
 
 
 PrivateKey = start()
 print(PrivateKey)
-PublicKey = input("Please insert your friends public key: ")
+PublicKey = nacl.public.PublicKey(input("Please insert your friends public key: "), nacl.encoding.Base64Encoder)
 box = Box(PrivateKey, PublicKey)
 select = input("Press\n1 to read\n2 to append\n")
 try:
