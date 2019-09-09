@@ -38,7 +38,6 @@ try:
     select = int(select)
 except:
     select = input("Please try it again. Press\n1 to read\n2 to append\n")
-
 if select == 1:
     print("Cool. We're looking for your messages.\n")
     ra.read_messages(box)
