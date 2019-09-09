@@ -2,7 +2,6 @@ from nacl.public import Box
 
 
 def append_messages(message, box, file="Messages.txt"):
-    print(file)
 
     encrypted_message = box.encrypt(bytes(message, 'utf-8'))
 
