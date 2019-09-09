@@ -2,12 +2,8 @@ import nacl.utils
 import base64
 import os.path
 import base64
-
 from nacl.public import PrivateKey
 from nacl.encoding import Base64Encoder
-
-os.path.exists("keys.txt")
-
 
 if not os.path.exists("keys.txt"):
     secretkey = PrivateKey.generate()
