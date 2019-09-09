@@ -3,9 +3,9 @@ from nacl.public import Box
 encrypted = box.encrypt
 
 
-def append_messages(file="Messages.txt", box, message):
-    print("test")
+def append_messages(message, box, file="Messages.txt"):
+    print(file)
 
-def read_messages(file="Messages.txt", box):
-    print("test")
 
+def read_messages(box, file="Messages.txt"):
+    print(file)
