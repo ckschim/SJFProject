@@ -11,5 +11,13 @@ def append_messages(message, box, file="Messages.txt"):
         f.write("\n")
 
 
+
 def read_messages(box, file="Messages.txt"):
     print(file)
+
+    box = Box(skalice, pkbob)
+    plaintext = box.decrypt(encrypted)
+    print(plaintext.decode('utf-8'))
+
+
+
