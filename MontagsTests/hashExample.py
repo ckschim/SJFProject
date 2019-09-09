@@ -1,5 +1,6 @@
 import nacl.hash
 import nacl.encoding
+from nacl.public import PrivateKey
 
 message = 'Hallo, ich mag Kuchen.'
 message2 = 'Kuchen.'
