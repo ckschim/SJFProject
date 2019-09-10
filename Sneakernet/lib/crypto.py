@@ -21,7 +21,6 @@ class ED25519:
 
 
     def sign(self, blob, signing_key):
-        signing_key = nacl.signing.SigningKey(self.private, encoder=nacl.encoding.HexEncoder)
         signed = signing_key.sign(blob)
         return signed
 
