@@ -1,6 +1,7 @@
 # sn/lib/crypto.py
 
-# importNaCL
+import nacl.signing
+import nacl.encoding
 
 class ED25519:
 
@@ -10,10 +11,10 @@ class ED25519:
         self.private = b'...'
 
     def create(self, seed):
-        # TODO: generate keys (SigningKey, PublicKey)
-        # signing key is kind of a PrivateKey
+        self.private = bytes(PrivateKey.generate())
+        self.public = bytes(self.private.public_key)
 
-        pass
+
 
     def sign(self, blob):
         # TODO: sign blob
