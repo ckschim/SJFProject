@@ -2,9 +2,8 @@
 
 # Sneakernet/read-log.py
 
-import binascii
+import base64
 import json
-import logging
 import os
 import pprint
 import sys
@@ -29,15 +28,16 @@ if __name__ == '__main__':
 
     lg = log.PCAP()
     lg.open(log_fn, 'r')
-    n = 1
+    n = 0
     t = gg.TRANSFER()
     for block in lg:
         t.from_cbor(block)
         c = t.event.content
         if c != None:
-            print(f"** {n}:")
+            print(f"** {base64.b64encode(t.event.feed).decode('utf8')}/{t.event.seq}")
             # print(str(c, 'utf8'))
             m = json.loads(c)
+
             pp.pprint(m)
             # print(m)
             print()
@@ -45,5 +45,7 @@ if __name__ == '__main__':
             print(f"** {n}: no content")
         n += 1
     lg.close()
+
+    print(f"** dumped {n} events")
 
 # eof
