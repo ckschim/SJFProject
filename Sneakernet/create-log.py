@@ -36,7 +36,7 @@ if __name__ == '__main__':
     seq = 0
     prev = None
     lg = log.PCAP()
-    lg.open('log.pcap', 'w')
+    lg.open("log" + str(time.time()) + ".pcap", 'w')
     while True:
         content = input("Please type in your message: ")
         event = create_event(content, seq, prev, keypair.public)
