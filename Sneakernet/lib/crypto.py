@@ -18,16 +18,12 @@ class ED25519:
         self.public = bytes(self.private.public_key)
         self.private = bytes(self.private)
 
-
-
     def sign(self, blob):
         signing_key = nacl.signing.SigningKey(
             nacl.public.PrivateKey(self.private).encode(encoder=nacl.encoding.HexEncoder),
             encoder=nacl.encoding.HexEncoder)
         signed = signing_key.sign(blob)
         return signed
-
-
 
     @staticmethod
     def validate(public, blob, signature):
@@ -38,8 +34,7 @@ class ED25519:
         :return: True when the Blob is successfully verified
         """
 
-        verify_key = nacl.signing.VerifyKey(public,
-                                            encoder=nacl.encoding.HexEncoder)
+        verify_key = nacl.signing.VerifyKey(public, encoder=nacl.encoding.HexEncoder)
         try:
             verify_key.verify(blob, signature)
         except nacl.exceptions.BadSignatureError:

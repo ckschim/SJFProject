@@ -3,6 +3,7 @@
 
 import cbor2
 import hashlib
+import lib.crypto as crypto
 
 GG_TAG_CIPHERLINK = 1050
 GG_CIPHERLINK_FEED_V1         = b'\x01' # ed25519

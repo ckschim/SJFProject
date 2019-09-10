@@ -7,7 +7,7 @@ import json
 import logging
 import os
 
-import lib.gg     as event
+import lib.gg    as event
 import lib.pcap   as log
 import lib.crypto as crypto
 
