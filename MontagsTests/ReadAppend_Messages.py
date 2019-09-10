@@ -6,7 +6,7 @@ def append_messages(message, box, file="Messages.txt"):
     encrypted_message = box.encrypt(bytes(message, 'utf-8'), encoder=nacl.encoding.Base64Encoder)
 
     with open(file, "a") as f:
-        f.write("%s" % encrypted_message)
+        f.write(str(nacl.encoding.Base64Encoder.encode(encrypted_message), 'utf-8'))
         f.write("\n")
 
 
