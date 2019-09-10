@@ -22,11 +22,9 @@ class ED25519:
 
     def sign(self, blob, signing_key):
         signing_key = nacl.signing.SigningKey(self.private, encoder=nacl.encoding.HexEncoder)
-        # TODO: sign blob
         signed = signing_key.sign(blob)
-        # TODO: return signed blob
         return signed
-        # blob = Binary Large OBject
+
 
 
     @staticmethod
