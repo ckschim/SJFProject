@@ -12,9 +12,12 @@ def append_messages(message, box, file="Messages.txt"):
 
 def read_messages(box, file="Messages.txt"):
     with open(file, "r") as f:
-        line = f.readline()
-        while line:
+
+        while True:
             line = f.readline()
+            if line is None:
+                print("All Messages read")
+                break
             try:
                 print(box.decrypt(line, encoder=nacl.encoding.Base64Encoder))
             except:
