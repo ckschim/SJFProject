@@ -23,24 +23,39 @@ def start():
             publickey64 = myfile.readline()
             secretkey64 = myfile.readline()
 
-        publickey = nacl.public.PublicKey(publickey64, nacl.encoding.Base64Encoder)
+        #publickey = nacl.public.PublicKey(publickey64, nacl.encoding.Base64Encoder)
         secretkey = nacl.public.PrivateKey(secretkey64, nacl.encoding.Base64Encoder)
         print(secretkey)
     return secretkey
 
+def str_to_int(x):
+    while True:
+        if x.isnumeric():
+            x = int(x)
+            if x <= 2 and x >= 1:
+                return x
+            else:
+                x = input("Please try it again. Press\n1 to read\n2 to append\n")
+                continue
+        else:
+            x = input("Please try it again. Press\n1 to read\n2 to append\n")
+            continue
 
-PrivateKey = start()
-print(PrivateKey)
-PublicKey = nacl.public.PublicKey(input("Please insert your friends public key: "), nacl.encoding.Base64Encoder)
-box = Box(PrivateKey, PublicKey)
-select = input("Press\n1 to read\n2 to append\n")
-try:
-    select = int(select)
-except:
-    select = input("Please try it again. Press\n1 to read\n2 to append\n")
-if select == 1:
-    print("Cool. We're looking for your messages.\n")
-    ra.read_messages(box)
-elif select == 2:
-    message = input("Please insert a message: ")
-    ra.append_messages(message, box)
+
+def main():
+    PrivateKey = start()
+    print(PrivateKey)
+    PublicKey = nacl.public.PublicKey(input("Please insert your friends public key: "), nacl.encoding.Base64Encoder)
+    box = Box(PrivateKey, PublicKey)
+    select = input("Press\n1 to read\n2 to append\n")
+    select = str_to_int(select)
+    if select == 1:
+        print("Cool. We're looking for your messages.\n")
+        ra.read_messages(box)
+    elif select == 2:
+        message = input("Please insert a message: ")
+        ra.append_messages(message, box)
+        print("You can find the encrypted message in the Messages.txt")
+
+
+main()
