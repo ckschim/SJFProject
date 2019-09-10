@@ -29,7 +29,7 @@ class PCAP:
             self._wr_typed_block(1,
                                  (99).to_bytes(2,'big') + \
                                  b'\00\00\00\00\00\00')
-        elif mode == 'a':
+        elif 'a' in mode[0]:
             # seek to end
             pass
 
@@ -57,6 +57,15 @@ class PCAP:
                 # print(f"len2={l}")
                 return b[4:4+l]
         return None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        block = self.read()
+        if not block:
+            raise StopIteration
+        return block
 
     def write(self, pkt):
         self._wr_typed_block(3, len(pkt).to_bytes(4,'big') + pkt)
