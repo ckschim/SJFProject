@@ -4,6 +4,7 @@ import MontagsTests.ReadAppend_Messages as ra
 from nacl.public import PrivateKey
 from nacl.public import Box
 from nacl.encoding import Base64Encoder
+from sys import exit
 
 
 def start():
@@ -45,8 +46,13 @@ def str_to_int(x):
 def main():
     PrivateKey = start()
     print(PrivateKey)
-    PublicKey = nacl.public.PublicKey(input("Please insert your friends public key: "), nacl.encoding.Base64Encoder)
-    box = Box(PrivateKey, PublicKey)
+    PublicKey = input("Please insert your friends public key: ")
+    try:
+        PublicKey = nacl.public.PublicKey(PublicKey, nacl.encoding.Base64Encoder)
+        box = Box(PrivateKey, PublicKey)
+    except:
+        print("You might have insert a wrong key. Please start the programm again.")
+        return
     select = input("Press\n1 to read\n2 to append\n")
     select = str_to_int(select)
     if select == 1:
