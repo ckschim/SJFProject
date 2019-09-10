@@ -16,7 +16,7 @@ import lib.crypto as crypto
 if __name__ == '__main__':
 
     # create feed ID
-    keypair = crypto.ED25519(
+    keypair = crypto.ED25519()
     keypair.create()
 
     # create and sign two events
