@@ -1,8 +1,9 @@
 # sn/lib/crypto.py
 
-import nacl.encoding
-import nacl.exceptions
 import nacl.signing
+import nacl.encoding
+import nacl.public
+import nacl.exceptions
 
 
 class ED25519:
@@ -13,17 +14,20 @@ class ED25519:
         self.private = b'...'
 
     def create(self, seed):
-        # TODO: generate keys (SigningKey, PublicKey)
-        # signing key is kind of a PrivateKey
+        self.private = nacl.public.PrivateKey.generate()
+        self.public = bytes(self.private.public_key)
+        self.private = bytes(self.private)
 
-        pass
 
-    def sign(self, blob):
+
+    def sign(self, blob, signing_key):
+        signing_key = nacl.signing.SigningKey(self.private, encoder=nacl.encoding.HexEncoder)
         # TODO: sign blob
+        signed = signing_key.sign(blob)
         # TODO: return signed blob
+        return signed
         # blob = Binary Large OBject
 
-        return b'\x00' * 32
 
     @staticmethod
     def validate(public, blob, signature):
