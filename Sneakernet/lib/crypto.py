@@ -2,6 +2,7 @@
 
 import nacl.signing
 import nacl.encoding
+import nacl.public
 
 class ED25519:
 
@@ -11,8 +12,9 @@ class ED25519:
         self.private = b'...'
 
     def create(self, seed):
-        self.private = bytes(PrivateKey.generate())
+        self.private = nacl.public.PrivateKey.generate()
         self.public = bytes(self.private.public_key)
+        self.private = bytes(self.private)
 
 
 
