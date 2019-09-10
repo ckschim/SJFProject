@@ -13,7 +13,7 @@ class ED25519:
         self.public = b'...'
         self.private = b'...'
 
-    def create(self, seed):
+    def create(self):
         self.private = nacl.public.PrivateKey.generate()
         self.public = bytes(self.private.public_key)
         self.private = bytes(self.private)

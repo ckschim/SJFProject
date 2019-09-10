@@ -1,11 +1,11 @@
 """
 write the log
-    #create identity
-    #input loop (interruptable)
-        #create event
-            #seq counter +1
-            #timestamp
-            #content
+    #create identity                        | True
+    #input loop (interruptable)             |
+        #create event                       |
+            #seq counter +1                 |
+            #timestamp                      |
+            #content                        |
             #feed (public_key)
             #previous (previous hash)
             #signature
@@ -13,5 +13,19 @@ write the log
     #finisch
 """
 
+import lib.crypto as crypto
+
+
+def msg_input():
+
+def create_event():
+
+def save_pcap():
+
+
 if __name__ == '__main__':
-    print("hi")
+    keypair = crypto.ED25519()
+    keypair.create()
+    while True:
+        content = input("msg: ")
+
