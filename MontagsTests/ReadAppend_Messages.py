@@ -15,13 +15,15 @@ def read_messages(box, file="Messages.txt"):
     print(file)
     with open(file, "r") as f:
         while True:
-            line = f.readline()
+            line = str(f.readline()).replace("\n","")
             print(line)
+            print("hi")
             if line is None:
                 print("All Messages read")
                 break
-            print(box.decrypt(line, encoder=nacl.encoding.Base64Encoder))
+            encrypted_msg = nacl.encoding.Base64Encoder.decode(line)
+            print(encrypted_msg)
             try:
-                print(box.decrypt(line, encoder=nacl.encoding.Base64Encoder))
+                print(encrypted_msg)
             except:
                 print("pass")
