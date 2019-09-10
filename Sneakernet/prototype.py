@@ -1,14 +1,17 @@
-#write the log
+"""
+write the log
     #create identity
     #input loop (interruptable)
         #create event
-            #seq conter +1
+            #seq counter +1
             #timestamp
             #content
             #feed (public_key)
-            #previous (hash der vorherigen nachricht)
+            #previous (previous hash)
             #signature
         #save to pcap
     #finisch
+"""
 
-#read the log
+if __name__ == '__main__':
+    print("hi")
