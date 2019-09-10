@@ -35,7 +35,7 @@ class ED25519:
         :param public: public Key as Hex
         :param blob: Binary Large Object
         :param signature: The signature of the blob to verify against. If the value of blob is the concated signature and blob, this parameter can be None.
-        :return: True when the Blob is sucessfully verified
+        :return: True when the Blob is successfully verified
         """
 
         verify_key = nacl.signing.VerifyKey(public,
