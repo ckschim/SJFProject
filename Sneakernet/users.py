@@ -26,6 +26,7 @@
 import base64
 import json
 import os
+import platform
 import sys
 import time
 
@@ -108,7 +109,7 @@ if __name__ == '__main__':
                        base64.b64encode(keypair.public).decode('utf8'),
                      'private_key':
                        base64.b64encode(keypair.private).decode('utf8'),
-                     'create_context': os.uname(),
+                     'create_context': platform.uname(),
                      'create_time': time.ctime()
         }
         with open(MY_SECRET_FILE, 'w') as f:
