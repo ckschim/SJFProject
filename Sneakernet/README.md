@@ -8,7 +8,13 @@ users.py [-new_name]
   - lists all known feedIDs and associated names
   - with the option '-new_name', one can change one's own name
 
-dump-log.py [log_file]
+import-from.py DIR
+  - scans the given DIR directory
+  - scans the 'logs' directory
+  - imports those events from DIR which extend a log in 'logs',
+    including creating a new log if that feed had not been seen so far.
+
+dump-log.py [LOG_FILE]
   - pretty-prints for each event the sequence number and event body
 
 ```
