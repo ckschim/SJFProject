@@ -128,7 +128,9 @@ class TRANSFER:
         e = EVENT()
         if not e.from_cbor(t[0]) or (type(t[1]) != list and t[1] != None):
             return False # raise()
-        # TODO: validate signature ...
+        if not crypto.ED25519.validate(e.feed, e.event_bytes, e.signature):
+            print("** Failed to validate event.")
+            return False
         self.event = e
         if t[1] == None:
             self.event.content = None
