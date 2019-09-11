@@ -29,6 +29,7 @@ import os
 import platform
 import sys
 import time
+from datetime import datetime
 
 import lib.crypto as crypto
 import lib.gg     as gg
@@ -102,9 +103,11 @@ def write_message():
 def output_chat():
     t = gg.TRANSFER()
     lg = log.PCAP()
+    pp_list = []
+    name_list = {}
     for file in os.listdir(LOGS_DIR):
         lg.open(os.path.join(LOGS_DIR, file), "r")
-        print(file)
+        nick_name = []
         for block in lg:
             t.from_cbor(block)
             c = t.event.content
@@ -113,12 +116,25 @@ def output_chat():
                 # print(str(c, 'utf8'))
                 m = json.loads(c)
                 if m['app'] == "feed/message":
-                    print(m['text'])
+                    pp_list.append([t.event.time, m])
+                if m['app'] == "feed/about":
+                    name_list[m['feed']] = m['display_name']
                 # print(m)
-                print()
             else:
                 print(f"** {n}: no content")
         lg.close()
+    pp(pp_list, name_list)
+
+
+def pp(list, name_list):
+    sorted(list)
+    for item in list:
+        timestamp = datetime.fromtimestamp(item[0])
+        feed = item[1]['feed']
+        name = name_list.get(feed)
+        content = item[1]['text']
+        print(name, "(", timestamp,") :\n\t",content,"\n")
+
 
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
