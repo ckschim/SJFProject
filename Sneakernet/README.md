@@ -14,6 +14,12 @@ import-from.py DIR
   - imports those events from DIR which extend a log in 'logs',
     including creating a new log if that feed had not been seen so far.
 
+export-to.py DIR
+  - scans the 'logs' directory
+  - scans the given DIR directory
+  - exports those events from 'logs' which are not in DIR,
+    into a 'export' file with a random name of the form x???????.pcap
+
 dump-log.py [LOG_FILE]
   - pretty-prints for each event the sequence number and event body
 
