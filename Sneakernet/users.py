@@ -92,14 +92,33 @@ def feed_get_display_name(log_fn):
 
 def write_message():
     message = input("\nPlease insert your message: ")
-    body = {'app': 'feed/message',
-            'feed': my_secret['public_key'],
-            'text': message}
+    body = {"app": "feed/message",
+            "feed": my_secret['public_key'],
+            "text": message}
     print("\n** successfuly created body")
     my_log_append(os.path.join(LOGS_DIR, MY_LOG_FILE), body)
     print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE),"\n")
 
 def output_chat():
+    t = gg.TRANSFER()
+    lg = log.PCAP()
+    for file in os.listdir(LOGS_DIR):
+        lg.open(os.path.join(LOGS_DIR, file), "r")
+        for block in lg:
+            t.from_cbor(block)
+            c = t.event.content
+            if c != None:
+                #print(f"** {base64.b64encode(t.event.feed).decode('utf8')}/{t.event.seq}")
+                # print(str(c, 'utf8'))
+                m = json.loads(c)
+                if m['app'] == "feed/message":
+                    print(m['text'])
+                # print(m)
+                print()
+            else:
+                print(f"** {n}: no content")
+        lg.close()
+
 
 
 
@@ -112,9 +131,10 @@ def output_chat():
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
 
-    # one optional parameter: -new_name
-    set_new_name = len(sys.argv) == 2 and sys.argv[1] == '-new_name'
-    message_mode = len(sys.argv) == 2 and sys.argv[1] == '-new_message'
+    if len(sys.argv) == 2:
+        set_new_name = sys.argv[1] == '-new_name'
+        message_mode = sys.argv[1] == '-new_message'
+        output_mode = sys.argv[1] == '-output_chat'
     
     print("Welcome to SneakerNet\n")
     #print("** starting the user directory app")
@@ -182,5 +202,7 @@ if __name__ == '__main__':
 
     if message_mode:
         write_message()
+    if output_mode:
+        output_chat()
 
 # eof
