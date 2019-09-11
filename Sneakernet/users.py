@@ -89,14 +89,23 @@ def feed_get_display_name(log_fn):
     lg.close()
     return (feed,name)
 
+
+def write_message():
+    message = input("Please insert your message: ")
+    body = {'app': 'feed/message',
+            'feed': my_secret['public_key'],
+            'text': message}
+    my_log_append(MY_LOG_FILE, body)
+
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
 
     # one optional parameter: -new_name
-    set_new_name = len(sys.argv) > 1 and sys.argv[1] == '-new_name'
+    set_new_name = len(sys.argv) == 2 and sys.argv[1] == '-new_name'
+    message_mode = len(sys.argv) == 2 and sys.argv[1] == '-new_message'
     
     print("Welcome to SneakerNet\n")
-    print("** starting the user directory app")
+    #print("** starting the user directory app")
 
     keypair = crypto.ED25519()
     if not os.path.isfile(MY_SECRET_FILE):
@@ -158,5 +167,8 @@ if __name__ == '__main__':
         feeds[feed] = name
     for feed,name in sorted(feeds.items(), key=lambda x: x[1]): 
         print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
+
+    if message_mode:
+        write_message()
 
 # eof
