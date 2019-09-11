@@ -30,8 +30,8 @@ import platform
 import sys
 import time
 from datetime import datetime
-from consolemenu import *
-from consolemenu.items import *
+#from consolemenu import *
+#from consolemenu.items import *
 
 import lib.crypto as crypto
 import lib.gg     as gg
@@ -374,8 +374,6 @@ if __name__ == '__main__':
     for feed,name in sorted(feeds.items(), key=lambda x: x[1]):
         print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
 
-    curses.wrapper(main)
+    # curses.wrapper(main)
 
 # eof
-
-s
