@@ -104,6 +104,7 @@ def output_chat():
     lg = log.PCAP()
     for file in os.listdir(LOGS_DIR):
         lg.open(os.path.join(LOGS_DIR, file), "r")
+        print(file)
         for block in lg:
             t.from_cbor(block)
             c = t.event.content
@@ -119,17 +120,12 @@ def output_chat():
                 print(f"** {n}: no content")
         lg.close()
 
-
-
-
-
-
-
-
-
-
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
+
+    set_new_name = False
+    message_mode = False
+    output_mode = False
 
     if len(sys.argv) == 2:
         set_new_name = sys.argv[1] == '-new_name'
