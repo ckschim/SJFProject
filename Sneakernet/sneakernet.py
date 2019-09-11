@@ -36,6 +36,7 @@ from consolemenu.items import *
 import lib.crypto as crypto
 import lib.gg     as gg
 import lib.pcap   as log
+import curses
 
 MY_SECRET_FILE = 'MyFeedID.json'
 LOGS_DIR = 'logs'
@@ -43,68 +44,73 @@ MY_LOG_FILE = '1.pcap' # inside logs dir
 
 # ----------------------------------------------------------------------
 
+menu = ['Import', 'Export', 'Write', 'Read', 'Exit']
 
-def start():
-    keypair = crypto.ED25519()
-    if not os.path.isfile(MY_SECRET_FILE):
-        yn = input('>> create personal feed ID? (y/N) ')
-        if yn != 'y':
-            print("** aborted")
-            sys.exit()
-        keypair.create()
-        my_secret = {'public_key':
-                         base64.b64encode(keypair.public).decode('utf8'),
-                     'private_key':
-                         base64.b64encode(keypair.private).decode('utf8'),
-                     'create_context': platform.uname(),
-                     'create_time': time.ctime()
-                     }
-        with open(MY_SECRET_FILE, 'w') as f:
-            f.write(json.dumps(my_secret, indent=2))
-    else:
-        with open(MY_SECRET_FILE, 'r') as f:
-            my_secret = json.loads(f.read())
-        keypair.public = base64.b64decode(my_secret['public_key'])
-        keypair.private = base64.b64decode(my_secret['private_key'])
-        # print(keypair.public, keypair.private)
-        print(f"** loaded my feed ID: @{base64.b64encode(keypair.public).decode('utf8')}")
+def print_menu(stdscr, selected_row_idx):
+    stdscr.clear()
+    h, w = stdscr.getmaxyx()
+    for idx, row in enumerate(menu):
+        x = w//2 - len(row)//2
+        y = h//2 - len(menu)//2 + idx
+        if idx == selected_row_idx:
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, x, row)
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(y, x, row)
+    stdscr.refresh()
 
-    if not os.path.isdir(LOGS_DIR):
-        os.mkdir(LOGS_DIR)
-        print(f"** created {LOGS_DIR} directory")
 
-    log_fn = os.path.join(LOGS_DIR, MY_LOG_FILE)
-    if not os.path.isfile(log_fn):
-        lg = log.PCAP()
-        lg.open(log_fn, 'w')
-        lg.close()
-        print(f"** created my log at {log_fn}")
+def print_center(stdscr, text):
+    stdscr.clear()
+    h, w = stdscr.getmaxyx()
+    x = 10
+    y = h//2
+    stdscr.addstr(y, x, text)
+    stdscr.refresh()
 
-    # find my name
-    feed, name = feed_get_display_name(log_fn)
-    if feed and feed != keypair.public:
-        print(f"** {log_fn} does not match feed ID (MyFeedID.json), aborting")
-        sys.exit()
-    if set_new_name or not feed or not name:
-        if not feed or not name:
-            print("** no name for this feed found")
-        name = input(">> enter a display name for yourself: ")
-        about = {'app': 'feed/about',
-                 'feed': my_secret['public_key'],
-                 'display_name': name}
-        my_log_append(log_fn, about)
-        print(f"** defined display name '{name}'")
-    else:
-        print(f"** loaded my name: '{name}'")
 
-    print("\n** list of known users:")
-    feeds = {}
-    for fn in os.listdir(LOGS_DIR):
-        log_fn = os.path.join(LOGS_DIR, fn)
-        feed, name = feed_get_display_name(log_fn)
-        feeds[feed] = name
-    for feed, name in sorted(feeds.items(), key=lambda x: x[1]):
-        print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
+def main(stdscr):
+    # turn off cursor blinking
+    curses.curs_set(0)
+
+    # color scheme for selected row
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+    # specify the current selected row
+    current_row = 0
+
+    # print the menu
+    print_menu(stdscr, current_row)
+
+    while 1:
+        key = stdscr.getch()
+
+        if key == curses.KEY_UP and current_row > 0:
+            current_row -= 1
+        elif key == curses.KEY_DOWN and current_row < len(menu)-1:
+            current_row += 1
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            #print_center(stdscr, "You selected '{}'".format(menu[current_row]))
+            menu_selection = menu[current_row]
+            if menu_selection == "Write":
+                stdscr.clear()
+                stdscr.refresh()
+                write_message(stdscr)
+            stdscr.getch()
+            # if user selected last row, exit the program
+            if current_row == len(menu)-1:
+                break
+
+        print_menu(stdscr, current_row)
+
+
+def c_input(stdscr, prompt_str):
+    curses.echo()
+    stdscr.addstr(prompt_str)
+    stdscr.refresh()
+    input = stdscr.getstr()
+    return input.decode("utf-8")
 
 
 def my_log_append(log_fn, body):
@@ -158,8 +164,8 @@ def feed_get_display_name(log_fn):
     return (feed,name)
 
 
-def write_message():
-    message = input("\nPlease insert your message: ")
+def write_message(stdscr):
+    message = c_input(stdscr, "\nPlease insert your message: ")
     body = {"app": "feed/message",
             "feed": my_secret['public_key'],
             "text": message}
@@ -307,6 +313,69 @@ if __name__ == '__main__':
     print("\nWelcome to SneakerNet\n")
     #print("** starting the user directory app")
 
+    keypair = crypto.ED25519()
+    if not os.path.isfile(MY_SECRET_FILE):
+        yn = input('>> create personal feed ID? (y/N) ')
+        if yn != 'y':
+            print("** aborted")
+            sys.exit()
+        keypair.create()
+        my_secret = {'public_key':
+                       base64.b64encode(keypair.public).decode('utf8'),
+                     'private_key':
+                       base64.b64encode(keypair.private).decode('utf8'),
+                     'create_context': platform.uname(),
+                     'create_time': time.ctime()
+        }
+        with open(MY_SECRET_FILE, 'w') as f:
+            f.write(json.dumps(my_secret, indent=2))
+    else:
+        with open(MY_SECRET_FILE, 'r') as f:
+            my_secret = json.loads(f.read())
+        keypair.public = base64.b64decode(my_secret['public_key'])
+        keypair.private = base64.b64decode(my_secret['private_key'])
+        # print(keypair.public, keypair.private)
+        print(f"** loaded my feed ID: @{base64.b64encode(keypair.public).decode('utf8')}")
 
+    if not os.path.isdir(LOGS_DIR):
+        os.mkdir(LOGS_DIR)
+        print(f"** created {LOGS_DIR} directory")
+
+    log_fn = os.path.join(LOGS_DIR, MY_LOG_FILE)
+    if not os.path.isfile(log_fn):
+        lg = log.PCAP()
+        lg.open(log_fn, 'w')
+        lg.close()
+        print(f"** created my log at {log_fn}")
+
+    # find my name
+    feed, name = feed_get_display_name(log_fn)
+    if feed and feed != keypair.public:
+        print(f"** {log_fn} does not match feed ID (MyFeedID.json), aborting")
+        sys.exit()
+    if set_new_name or not feed or not name:
+        if not feed or not name:
+            print("** no name for this feed found")
+        name = input(">> enter a display name for yourself: ")
+        about = { 'app' : 'feed/about',
+                  'feed' : my_secret['public_key'],
+                  'display_name' : name }
+        my_log_append(log_fn, about)
+        print(f"** defined display name '{name}'")
+    else:
+        print(f"** loaded my name: '{name}'")
+
+    print("\n** list of known users:")
+    feeds = {}
+    for fn in os.listdir(LOGS_DIR):
+        log_fn = os.path.join(LOGS_DIR, fn)
+        feed, name = feed_get_display_name(log_fn)
+        feeds[feed] = name
+    for feed,name in sorted(feeds.items(), key=lambda x: x[1]):
+        print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
+
+    curses.wrapper(main)
 
 # eof
+
+s
