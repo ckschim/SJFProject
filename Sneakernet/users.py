@@ -91,11 +91,23 @@ def feed_get_display_name(log_fn):
 
 
 def write_message():
-    message = input("Please insert your message: ")
+    message = input("\nPlease insert your message: ")
     body = {'app': 'feed/message',
             'feed': my_secret['public_key'],
             'text': message}
-    my_log_append(MY_LOG_FILE, body)
+    print("\n** successfuly created body")
+    my_log_append(os.path.join(LOGS_DIR, MY_LOG_FILE), body)
+    print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE),"\n")
+
+def output_chat():
+
+
+
+
+
+
+
+
 
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
