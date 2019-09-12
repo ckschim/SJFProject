@@ -31,7 +31,7 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
 
     cmd_queue = [ f'PORT {push_port}'.encode('utf8') ] # , b'RECV 1']
     if len(local_db.max) > 0:
-        lst = [ f'+{base64.b64encode(fs[0]).decode("utf8")}/{fs[1]}' for fs in local_db.max.items() ]
+        lst = [ f'+{base64.b64encode(fs[0]).decode("utf8")}:{fs[1]}' for fs in local_db.max.items() ]
         # print(lst)
         cmd_queue.append(f'HAVE {" ".join(lst)}'.encode('utf'))
     #
@@ -59,25 +59,25 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
                 remote_push_port = int(data[1])
             elif data[0] == 'WANT':
                 for fs in data[1:]:
-                    fs = fs.split('/')
+                    fs = fs.split(':')
                     if fs[0][0] != '+':
                         continue
                     feed,seq = base64.b64decode(fs[0][1:]), int(fs[1])
                     # print('reacting to WANT:', feed, seq)
                     while feed in local_db.db and seq in local_db.db[feed]:
-                        print(f"-- enqueue outgoing push for {fs[0][1:]}/{seq}")
+                        print(f"-- enqueue outgoing push for {fs[0][1:]}:{seq}")
                         push_queue.append(local_db.db[feed][seq])
                         seq += 1
             elif data[0] == 'HAVE':
                 for fs in data[1:]:
-                    fs = fs.split('/')
+                    fs = fs.split(':')
                     if fs[0][0] != '+':
                         continue
                     feed,seq = base64.b64decode(fs[0][1:]), int(fs[1])
                     if not feed in local_db.db:
-                        cmd_queue.append(f'WANT +{fs[0][1:]}/1'.encode('utf8'))
+                        cmd_queue.append(f'WANT +{fs[0][1:]}:1'.encode('utf8'))
                     elif seq > local_db.max[feed]:
-                        cmd_queue.append(f'WANT +{fs[0][1:]}/{local_db.max[feed]+1}'.encode('utf8'))
+                        cmd_queue.append(f'WANT +{fs[0][1:]}:{local_db.max[feed]+1}'.encode('utf8'))
 
     print("** peer_loop done")
 

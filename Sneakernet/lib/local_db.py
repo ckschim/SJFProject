@@ -71,6 +71,6 @@ class LOCAL_DB:
         lg.open(self.fn[feed], 'a')
         lg.write(data)
         lg.close()
-        print(f"-- ingested event {base64.b64encode(feed).decode('utf8')}/{seq}")
+        print(f"-- ingested event {base64.b64encode(feed).decode('utf8')}:{seq}")
 
 # eof
