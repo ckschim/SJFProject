@@ -109,6 +109,14 @@ def main(stdscr):
             elif menu_selection == "Read":
                 output_chat(stdscr)
             elif menu_selection == "Exit":
+                exit_selection = c_input(stdscr,"Are you sure you want to exit? [Yes|No]")
+                if exit_selection in ["No", "N", "no", "n"]:
+                    print_menu(stdscr, 0)
+                else:
+                    sys.exit()
+
+
+
 
 
             stdscr.getch()
