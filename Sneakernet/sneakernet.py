@@ -147,6 +147,8 @@ def print_sneaker(stdscr):
    """)
     except:
         stdscr.refresh()
+        time.sleep(3)
+        return
 
 
 def print_menu(stdscr, selected_row_idx):
@@ -197,6 +199,8 @@ def main(stdscr):
 
     # specify the current selected row
     current_row = 0
+
+    print_sneaker(stdscr)
 
     # print the menu
     print_menu(stdscr, current_row)
@@ -378,7 +382,6 @@ def pp(list, name_list,stdscr):
     print("press ENTER to go back")
 
 
-
 def import_log(stdscr):
     import_dir = c_input(stdscr, "enter path: ")
 
@@ -550,11 +553,6 @@ if __name__ == '__main__':
     set_new_name = False
     message_mode = False
     output_mode = False
-
-    if len(sys.argv) == 2:
-        set_new_name = sys.argv[1] == '-new_name'
-        message_mode = sys.argv[1] == '-new_message'
-        output_mode = sys.argv[1] == '-output_chat'
 
     print("\nWelcome to SneakerNet\n")
     # print("** starting the user directory app")
