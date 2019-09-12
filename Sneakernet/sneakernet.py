@@ -31,11 +31,11 @@ import sys
 import time
 from datetime import datetime
 import random
-#from consolemenu import *
+# from consolemenu import *
 
 import lib.gg     as gg
 import lib.pcap   as log
-#from consolemenu.items import *
+# from consolemenu.items import *
 
 import lib.crypto as crypto
 import lib.gg     as gg
@@ -44,19 +44,153 @@ import curses
 
 MY_SECRET_FILE = 'MyFeedID.json'
 LOGS_DIR = 'logs'
-MY_LOG_FILE = '1.pcap' # inside logs dir
+MY_LOG_FILE = '1.pcap'  # inside logs dir
 
 # ----------------------------------------------------------------------
 
-menu = ['Import', 'Export', 'Write', 'Read', 'Exit']
+menu = ['Import', 'Export', 'Write', 'Read', 'About', 'Exit']
+
+submenu = ["USB", "UDP"]
+
+def print_sneaker(stdscr):
+    curses.echo()
+    #Just don't change the try catch or else it will fail
+    try:
+        stdscr.addstr("""
+                                              *//(///*,.                                                                                                      
+                                            ,(#%#####%%####(/.                                                                                                
+                                           *#%%%%###%%%%%%%%%%#(*                                                                                              
+                                          /%%%%%%%#&&&&&&&&&&&%%%##/.                                                                                          
+                                         *#%%&&%&%%#&&&&&&&&&&&&&%%%%#(*                                                                                       
+                                        .#%%%&&&&&&%%&&&&&&&&&&&&&&&&%%%%#(*                                                                                  
+                                        (%%%&&&&&%&&&&&&&&&&&&&&&&&&&&&%%%#(/.                                                                              
+                                      /##%%&&&&&&&&%&%&&@@@&&&&&&&&&&&&&&&&&%%%%#(*                                                                            
+                                    .(%%%%&&&&&&&&&&&&@@@@@@&&&&&&&&&&&&&&&&&%%%%#(*                                                                         
+                                   .(%%%#%&&&&&&&&&&&&&&%%@@@@@@@@@&&&&&&&&&&&&&&&%%%%#(*                                                                      
+                                   /%%&&&%&&&&&&&&&&&&&&&&@@@@@@@&&&&&&&&&&&&&&&&&&%%%%#(*                                                                   
+                                  .#%&&&&&%&&&&&&&&&&&&&&&&%&&%&@@@@@@&&&&&&&&&&&&&&&&&&%%%%#(*                                                                
+                                /#%%&&&&&&&&&&&&&&&&&&&&&&&&&&%&@@@@@@@&&&&&&&&&&&&&&%%%#%%%##(/.                                                            
+                               (%%&&&&&&&&&*&&&&&&&&&&&&&&&&&&&&%&&@@@@.,      ......... .                                                               
+                              (%%&&&%&&&&&&&&&%(&&&&&&&&&&&&&&&&&&&&&&&&&&&%.      ................ #(*.                                                     
+                             ,#%&&&&&%&&&&&&&&&&,&&&&&&&&&&&&&&&&&&&&&&/&&&&.   . /...*/(/,........ #/(#/                                                    
+                            *,%&&&&&&&&&&&&&&&&%.&&&&&&&&&&&&&&&%&&&&&&&&&&&&    .((((((.*/(,/..... %%%%#(,                                                  
+                          /%&&%&&&&&&&&(&&&&&&&&&&&&,&&&&&&&&&&&&&&&&&&&&&&&,&%.    **/*.(,*(,*((,... %%&%%%(*                                                 
+                        (%&&&&%&&&&&&&&&.&&&&&&&&&&&&&/&&&&&&&&&&&%&&&&&&&&&&&.%..... .*,(//*(/*(((... %%&%%%(                                                 
+                      *%&&&&&&&%&&&&&&&&&/%&&&&&&&&&&&&&(&&&&&&&&&(&&&&&&&&&&&&/&,......,*/(*/*/,**(...%%&&%%#/                                                
+                    .#&&&&&&&&&&(&&&&&&&&&&.&&&&&&&&&&&&&%&&&&&&(&&&&&%/ ,&&&&(.........*/((((**...%%&&%%%(                                                
+                   (#%&&&&&&&&&&&(&&&&&&&&&&%,&&&&&&&&&&&&&&&*&&&@(&&&&.,#&,*/&&&*&*...........*.(.....%&&&&%%(                                                
+                  #%%(&&&&&&&&&&&&,&&&&&&&&&&&%/&&&&&&&&&&&&&&&,%&&&&*(@@@./%&&,&%.................. %%&&&%%(                                                
+                ,%%% *&&&&&&&&&&&&&(&&&&&&&&&&&&%%&&&&&&&&&&&&&&&&&&&&&(/,,,/#&&&,&%...................%%&&&%%/                                               
+               (%%%   (&&&&&&&&&&&&&&*&&&&&&&&&&&&(&&&&&&&&&&&&&&@&&&&&&&&&&&&&&&/&%%./,*.**.//,,*./,..&%&&%%#,                                                
+             /%%##     (&&&&&&&&&&&&&#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&(&&*................./&&&&%%(                                                 
+            #%&       *&&&&&&&&&&&&&&&/&&&&&&&&&&&&&&&&&&&&&&%&&&&&&&&&&&&&&&&&&*........... .....%&&&&%#*                                                 
+          #%&&&&          &&&&&&&&&&&&&&&%(&&&&&&&&&&&&&&(&&&&&&&(&@&&@&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%&&%#                                                 
+         %&&&&&&(          /&&&&&&&&&&&&&&&(&&&&&&&&&&&&&&&,&&&&&&&&&&&&&%((#&%&&*&%&&&&&&&&&&&&&&&&&&&&&&&%(                                                  
+      ,  &&&&%&&&.           /&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%#&/&@@@&&&,.         *&&&&&&&&&&&&&&&&&&&&&&%%(                                                 
+      (  &&&&&&&,            %&&&&&&&&&&&&&&&&&&&&&&&&&&&&&@/&@&@@&&%               ,(%&&&&&&&&&&&%%%#.                                                   
+     ,#  &&&&@&&&&&(             %&&&&&&&&&&&&&&&%&&&&&&&&&&&&&&%&&&@@&&&&&.                 ,(%&&*.                                                         
+     .#  (&&@&&&&&&&&              %&&&&&&&&&&&&&&&/&&&&&&&&&&&&&&&@@&&&&&&&&&&&%*                                                                             
+      #(  %&&&&&&&(/,              /&&&&&&&&&&&&&&&.&&&&&&&&&&&@@&&&&&&&&&&&&&&&&&*...               ./*                                                   
+      ,#  .&&&&&&&((,,*,,               %&&&&&&&&&&&&&&,%&&&&&&&&@@&&&&&&&&&&&(&%. ... .. ...           *,                                                   
+       ##   %&&&&&&%(** /., .             .%&&&&&&&&&&&&&,(&&&&/&@@&&&&&,.,(%&&&,&%....   .*%&&&&%#,.     /*                                                  
+        %%/  (&&&&&&&&(*,*//(                .%&&&&&&&&&&&&%.&&*&&&&@&&%          ,*%&&&&&&&&&&&&&&&%%(.                                                       
+         (%#  *&&&&&&&&%(,*/(&&,               ,&&&&&&&&&&&&&&&,&&@&&&                 ,(&&&&%/.                                                             
+           %%   &&&&&&&&&&(&@&&&&&*             .&&&&&&&&&&&&&@,&&&&@&&&&&%(,                             ./                                                  
+            #%   %&&&&&&&&&&&&&&&&&&%            ,&&&&&&&&&&&&@,&@&&&&@&&&&&&&&%%#,                  .(%%(                                                   
+             /%*  #&&&&&&&&&&&&&&&&&&&&%          *&&&&&&&&&&&@/&@&&&&&&&&&&&&&&&&%,............         #%#                                                  
+              .%#  *&&&&&&&&&&&&&&&&&&&&&*       . %&&&&*,%&&&&%&@@&&&&&&&&&&&&&,,,..  .%&&&&&&&&%%/   (/.                                                   
+                %%   &&&&&&&&&&&&&&&&&&&&&        ..&&&&&&&&&&&&&&&&&&&       .*/,.*%&&&&&&&&&&&&%%/.                                                        
+    . .          #%.  %&&&&&&&&&&&&&&&&&&&%         #&&&&&&&&&&&@&&@&@&&.                    .**/.                                                            
+      ..          ,%(  (%&&&&&&&&&&&&&&&&((         .&&&&&&&&&&&&@&&@&&&,                                 ,/#/                                                
+       .            //   ///((((((/((//////*         //(((((((//,//////////////////**.                     ***.                                               
+                                                                                                                                                               
+                                                                                                                                                               
+         %@@@    *@@@/    @@@#  @@@@@@@@@@   @@@%           &@@@@@@%     .@@@@@@@.     /@@@@     *@@@@   .@@@@@@@@@(        @@@@@@@@@@@@    .@@@@@@@.          
+          @@@(   @@@@@   /@@@   @@@@%%%%%%   @@@%        .@@@@(  ,@@(  #@@@@. .@@@@(   /@@@@@    @@@@@   .@@@%%%%%%/        %%%%@@@@%%%%  #@@@@. .@@@@(        
+          *@@@  .@@@@@,  @@@*   @@@#         @@@%        @@@@          @@@/     /@@@   /@@@@@/  @@@@@@   .@@@                   @@@&     *@@@/     /@@@        
+           @@@* @@@ @@@ *@@@    @@@@@@@@@&   @@@%       .@@@          (@@@       @@@(  /@@@,@@,@@(%@@@   .@@@@@@@@@             @@@&     @@@@       @@@(       
+           .@@@*@@, *@@*@@@.    @@@#         @@@%        @@@*         *@@@       @@@*  /@@@ *@@@@ %@@@   .@@@                   @@@&     &@@@       @@@*       
+            @@@@@@   @@@@@@     @@@#         @@@%        @@@@,     #(  @@@@     @@@@   /@@@  @@@  %@@@   .@@@                   @@@&      @@@@     @@@@        
+             @@@@    .@@@@      @@@@@@@@@@   @@@@@@@@@@   *@@@@@@@@@(   (@@@@@@@@@(    /@@@       %@@@   .@@@@@@@@@(            @@@&       (@@@@@@@@@(         
+                                                              .,.           .,.                                                                .,.             
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+           @@@@@@@@@@   @@@@@    (@@&   &@@@@@@@@@.     *@@@@#      &@@@    @@@@   @@@@@@@@@@   @@@@@@@@@@,    @@@@@    &@@&   &@@@@@@@@@  @@@@@@@@@@@@        
+          @@@/     .@   @@@@@@,  (@@&   &@@@            @@@@@@      &@@@  (@@@.    @@@#         @@@#   /@@@,   @@@@@@   &@@&   &@@@            @@@&            
+          @@@@@/        @@@.@@@* (@@&   &@@@,,,,,,     @@@.(@@@     &@@@ @@@%      @@@%,,,,,,   @@@#   .@@@.   @@@.@@@* &@@&   &@@@,,,,,,      @@@&            
+           &@@@@@@@@@   @@@  @@@@(@@&   &@@@@@@@@@    &@@%  @@@%    &@@@@@@@       @@@@@@@@@&   @@@@@@@@@@     @@@  @@@%&@@&   &@@@@@@@@@      @@@&            
+                .@@@@%  @@@   %@@@@@&   &@@@         *@@@@@@@@@@,   &@@@ &@@@/     @@@#         @@@# *@@@&     @@@   @@@@@@&   &@@@            @@@&            
+         .@@.    /@@@.  @@@    /@@@@&   &@@@,,,,,,   @@@*,,,,*@@@   &@@@   @@@@    @@@%,,,,,,   @@@#   @@@@    @@@    /@@@@&   &@@@,,,,,,      @@@&            
+          @@@@@@@@@%    @@@      @@@&   &@@@@@@@@@. @@@&      @@@@  &@@@    @@@@/  @@@@@@@@@@   @@@#    (@@@&  @@@     *@@@&   &@@@@@@@@@      @@@&            
+                                                                                                                                                               
+                                                              ................................                 ..................                              
+                                                      *//    /(((((((((((((((((((####%%%%%%%%%(       ,/%%%%%%%%%%%%%%%%%%%%####(*                             
+                                                       ##%(   .&&@&&@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&&&&&&&&&@@@@@@@@@@&&@&&&&&&&&&                             
+                                          .              %%%*   ,&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&@@&&/@&@@@@@@@@@@@&&&&&&&&&&&%(                            
+                                                          ,%%%,   *&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@&@@@@@@@@@&@&&&&&&&&&&&&%*                          
+                                            ..              /%%%.   (&&&@@@@@@@@@@@@@@@@@@@@@@@&@&@@@@@%&&@@@@@@@@@&&&&&&&&&&&&&&&&%                          
+                                            ....              (%%%.   .&&@@@@@@@@@@@@@@@@@@@@(&&&%*@@@&/@&@@@@@@@@&&&&&&&&&&&&&&&&%.#                          
+                                              ...   ..          #%%%*   .&&&@@@@@@@@@@@@@@@@&%@&@@&&.%&%@&@@@@&&&&&&&&&&&&&&&&&&&&%%./                        
+                                              .....  ..           (%%%#    &&&&@@@@@@@@@@@@@@@@@#@&&&&,,&@@@@&@&&&@&&&&&&&&&&&&&&&&%%,                         
+                                               ...........          ,%%%%    (&&@@@@@@@@@@@@@@@@@/&& @&&@&/&@@@@@&&&&@&&&&&&&&&&&&&&%%(*                       
+                                                ....... . ..           %%%%,   .&&&&@@@@@@@@@@@@*&&%@&@@@@@&@,&@@@&&&&&&&&&&&&&&&&&&&%%%#                     
+                                                  ...... ...             #%%%#    /&&@@@@@@@@@&&&.@&&@@@@@@@@&@&,@&@@&&&&@&&&&&&&&&&&&&&%#,                    
+                                                   .....   .. ...          .%%%%*    %&&@@@@&*@%#@&&@@*#@@@@&@@@@@@*&@&@@@&&&&&@&&&&&&&&&%#(                   
+                                                     . .....  ...             #%%%%    .&&&&(&,&&&@@@@@@@(@@@@@@@@@@@%&&&@&&&&&&&&&&&&&&/%%,                
+                                                      ......   ..  .. .  .      ,%%%%,    ,&&,@&@@@@@@@@@@@@#&@@@@@&@@@@@&.&&@&&&&&&&&&&&&&.%%(.              
+                                                       ......  ...  ... .          /%%%%     %&@@@@@@@@@@@@@@@@@&%&@@@@@@@@&*/&&&&&&&&&&&.&%%%/              
+                                                         .........    .....          .%%%%(    (&&@@@@@@@@@@@@@@@@@&(@@@@&@&@&@@&&/,&&&&&&%,&&&%%(*            
+                                                          .........    ..... .          #&&&%,    (&@@@@@@@@@@@@@@@@@&@/*@@@@@@@&@&&&&&&&&&&&&&&%/%#           
+                                                            .........  .......             %&&&%,    *&@@@@@@@@@@@@@@@@@@&@#*@@@@@&@@&&&&&&&&&&&&%%*         
+                                                              ........   .....    ..          #%%%%/    ,&@@@@@@@@@@@@@@@@@@@@&&&(&&&&@@&&&&&&&&&%&&%%#        
+                                                                ...............                  %&%&&,    ,&&@@@@@@@@@@@@@@@@@@@@@@&**&&&&&%,%&&&&&%#       
+                                                                  ................. .               (%&%%%     (&@@@@@@@@@@@@@@@@@@@@@@@&&&&&&&&&&&&&&&&%.     
+                                                                    ................... .              (%&&%%*     %&@@@@@@@@@@@@@@@@@@@@&@&@&&&&&&&&&&&&%     
+                                                                       .....................              ,%&&%%#     .&&@@@@@@@@@@@@@@@@@@&&&&&&&&&&&&&&&* .  
+                                                                         ............... .                    .%&&&%%*     #&@@@@@@@@@@@@@@@@@@&&&&&&&&&&&%  , 
+                                                                           ..................   .                 *%&&&%%,     /&@@@@@@@@@@@@@@&&&&&&&&&&&*  * 
+                                                                              .............. .......      ..        .  %%&&&%%.   .. *%&&&&@@@&@@@@&&&&&/    /.
+                                                                                 ........... .........     ..    .         *%&&%%%%*           ,,,.        (#( 
+                                                                                    ..................    ...    ..             .#%&%%%%%%%#*..     ..*#%%%%(  
+                                                                                       ..........   ..  .....    ...                  ./%%%%%%%%%%%%%%%%%*     
+                                                                                          ....................  ...    . ..   .                                
+                                                                                             ...............    .....   ...   ..                            . 
+                                                                                                 ..........................   ..    .                          
+                                                                                                     ..................... . ..    ..      .  .  .             
+                                                                                                         ...................... . .. . .  .  .. .. .           
+                                                                                                             .......................... ... .  .. .  .         
+                                                                                                                  ............................. ..             
+                                                                                                                        .................. ..                  
+                                                                                                                                ............                   
+   """)
+    except:
+        print("hello")
+        stdscr.refresh()
 
 
 def print_menu(stdscr, selected_row_idx):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
     for idx, row in enumerate(menu):
-        x = w//2 - len(row)//2
-        y = h//2 - len(menu)//2 + idx
+        x = w // 2 - len(row) // 2
+        y = h // 2 - len(menu) // 2 + idx
+        if idx == selected_row_idx:
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, x, row)
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(y, x, row)
+    stdscr.refresh()
+
+
+def print_submenu(stdscr, selected_row_idx):
+    stdscr.clear()
+    h, w = stdscr.getmaxyx()
+    for idx, row in enumerate(submenu):
+        x = w // 2 - len(row) // 2
+        y = h // 2 - len(submenu) // 2 + idx
         if idx == selected_row_idx:
             stdscr.attron(curses.color_pair(1))
             stdscr.addstr(y, x, row)
@@ -70,7 +204,7 @@ def print_center(stdscr, text):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
     x = 10
-    y = h//2
+    y = h // 2
     stdscr.addstr(y, x, text)
     stdscr.refresh()
 
@@ -93,31 +227,62 @@ def main(stdscr):
 
         if key == curses.KEY_UP and current_row > 0:
             current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < len(menu)-1:
+        elif key == curses.KEY_DOWN and current_row < len(menu) - 1:
             current_row += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
-            #print_center(stdscr, "You selected '{}'".format(menu[current_row]))
+            # print_center(stdscr, "You selected '{}'".format(menu[current_row]))
             menu_selection = menu[current_row]
             stdscr.clear()
             stdscr.refresh()
             if menu_selection == "Write":
                 write_message(stdscr)
             elif menu_selection == "Import":
-                import_log(stdscr)
+                sub_menu(stdscr, current_row, menu_selection)
             elif menu_selection == "Export":
-                export(stdscr)
+                sub_menu(stdscr, current_row, menu_selection)
             elif menu_selection == "Read":
                 output_chat(stdscr)
+            elif menu_selection == "About":
+                print_sneaker(stdscr)
             elif menu_selection == "Exit":
-
-
+                print("shutdown..")
+                for i in range(300):
+                    time.sleep(0.02)
+                    print(".")
+                sys.exit()
             stdscr.getch()
             # if user selected last row, exit the program
-            if current_row == len(menu)-1:
+            if current_row == len(menu) - 1:
                 break
 
         print_menu(stdscr, current_row)
 
+def sub_menu(stdscr, current_row, selecter):
+    print_submenu(stdscr, current_row)
+    while 1:
+        key = stdscr.getch()
+        if key == curses.KEY_UP and current_row > 0:
+            current_row -= 1
+        elif key == curses.KEY_DOWN and current_row < len(submenu) - 1:
+            current_row += 1
+        elif key in [27, curses.KEY_LEFT]:
+            print_menu(stdscr, 0)
+            break
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            sub_selection = submenu[current_row]
+            stdscr.clear()
+            stdscr.refresh()
+            if selecter == "Import":
+                if sub_selection == "USB":
+                    import_log(stdscr)
+                else:
+                    print("UDP")
+            else:
+                if sub_selection == "USB":
+                    export(stdscr)
+                else:
+                    print("UDP")
+        print_submenu(stdscr, current_row)
 
 def c_input(stdscr, prompt_str):
     curses.echo()
@@ -146,7 +311,7 @@ def my_log_append(log_fn, body):
     e = gg.EVENT(
         prev=prev,
         feed=keypair.public,
-        seq=seq+1,
+        seq=seq + 1,
         time=int(time.time()),
         content=bytes(json.dumps(body), 'utf-8'),
         content_enc=gg.GG_CONTENT_ENCODING_JSON
@@ -175,7 +340,7 @@ def feed_get_display_name(log_fn):
         if 'app' in m and m['app'] == 'feed/about' and 'display_name' in m:
             name = m['display_name']
     lg.close()
-    return (feed,name)
+    return (feed, name)
 
 
 def write_message(stdscr):
@@ -185,7 +350,7 @@ def write_message(stdscr):
             "text": message}
     print("\n** successfuly created body")
     my_log_append(os.path.join(LOGS_DIR, MY_LOG_FILE), body)
-    print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE),"\n")
+    print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE), "\n")
 
 
 def output_chat(stdscr):
@@ -200,7 +365,7 @@ def output_chat(stdscr):
             t.from_cbor(block)
             c = t.event.content
             if c != None:
-                #print(f"** {base64.b64encode(t.event.feed).decode('utf8')}/{t.event.seq}")
+                # print(f"** {base64.b64encode(t.event.feed).decode('utf8')}/{t.event.seq}")
                 # print(str(c, 'utf8'))
                 m = json.loads(c)
                 if m['app'] == "feed/message":
@@ -211,20 +376,25 @@ def output_chat(stdscr):
             else:
                 print(f"** {n}: no content")
         lg.close()
-    pp(pp_list, name_list)
+    pp(pp_list, name_list, stdscr)
 
 
-def pp(list, name_list):
+def pp(list, name_list,stdscr):
     sorted(list)
     for item in list:
-        timestamp = datetime.fromtimestamp(item[0])
+        timestamp = str(datetime.fromtimestamp(item[0]))
         feed = item[1]['feed']
         name = name_list.get(feed)
         content = item[1]['text']
-        print(name, "(", timestamp,") :\n\t",content,"\n")
+        curses.echo()
+        output = name + "(" + timestamp + ") :\n\t" + content + "\n\n"
+        stdscr.addstr(output)
+        stdscr.refresh()
+    print("press ENTER to go back")
+
+
 
 def import_log(stdscr):
-
     import_dir = c_input(stdscr, "enter path: ")
 
     if not os.path.isdir(import_dir):
@@ -400,9 +570,9 @@ if __name__ == '__main__':
         set_new_name = sys.argv[1] == '-new_name'
         message_mode = sys.argv[1] == '-new_message'
         output_mode = sys.argv[1] == '-output_chat'
-    
+
     print("\nWelcome to SneakerNet\n")
-    #print("** starting the user directory app")
+    # print("** starting the user directory app")
 
     keypair = crypto.ED25519()
     if not os.path.isfile(MY_SECRET_FILE):
@@ -412,12 +582,12 @@ if __name__ == '__main__':
             sys.exit()
         keypair.create()
         my_secret = {'public_key':
-                       base64.b64encode(keypair.public).decode('utf8'),
+                         base64.b64encode(keypair.public).decode('utf8'),
                      'private_key':
-                       base64.b64encode(keypair.private).decode('utf8'),
+                         base64.b64encode(keypair.private).decode('utf8'),
                      'create_context': platform.uname(),
                      'create_time': time.ctime()
-        }
+                     }
         with open(MY_SECRET_FILE, 'w') as f:
             f.write(json.dumps(my_secret, indent=2))
     else:
@@ -448,9 +618,9 @@ if __name__ == '__main__':
         if not feed or not name:
             print("** no name for this feed found")
         name = input(">> enter a display name for yourself: ")
-        about = { 'app' : 'feed/about',
-                  'feed' : my_secret['public_key'],
-                  'display_name' : name }
+        about = {'app': 'feed/about',
+                 'feed': my_secret['public_key'],
+                 'display_name': name}
         my_log_append(log_fn, about)
         print(f"** defined display name '{name}'")
     else:
@@ -462,9 +632,8 @@ if __name__ == '__main__':
         log_fn = os.path.join(LOGS_DIR, fn)
         feed, name = feed_get_display_name(log_fn)
         feeds[feed] = name
-    for feed,name in sorted(feeds.items(), key=lambda x: x[1]):
+    for feed, name in sorted(feeds.items(), key=lambda x: x[1]):
         print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
-
 
     curses.wrapper(main)
 
