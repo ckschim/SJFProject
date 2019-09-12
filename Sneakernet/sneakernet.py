@@ -179,7 +179,7 @@ def write_message(stdscr):
     print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE),"\n")
 
 
-def output_chat():
+def output_chat(stdscr):
     t = gg.TRANSFER()
     lg = log.PCAP()
     pp_list = []
