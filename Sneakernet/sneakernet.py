@@ -391,8 +391,12 @@ def pp(list, name_list,stdscr):
         content = item[1]['text']
         curses.echo()
         output = name + "(" + timestamp + ") :\n\t" + content + "\n\n"
-        stdscr.addstr(output)
-        stdscr.refresh()
+        try:
+            stdscr.addstr(output)
+        except:
+            pass
+        finally:
+            stdscr.refresh()
     print("press ENTER to go back")
 
 
