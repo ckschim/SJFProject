@@ -98,14 +98,19 @@ def main(stdscr):
         elif key == curses.KEY_ENTER or key in [10, 13]:
             #print_center(stdscr, "You selected '{}'".format(menu[current_row]))
             menu_selection = menu[current_row]
+            stdscr.clear()
+            stdscr.refresh()
             if menu_selection == "Write":
-                stdscr.clear()
-                stdscr.refresh()
                 write_message(stdscr)
             elif menu_selection == "Import":
-                stdscr.clear()
-                stdscr.refresh()
                 import_log(stdscr)
+            elif menu_selection == "Export":
+                export(stdscr)
+            elif menu_selection == "Read":
+                output_chat(stdscr)
+            elif menu_selection == "Exit":
+
+
             stdscr.getch()
             # if user selected last row, exit the program
             if current_row == len(menu)-1:
@@ -304,16 +309,15 @@ def import_log(stdscr):
     print(f"** imported {update_cnt} event(s) to the '{LOGS_DIR}' directory")
 
 
-def export():
-    export_dir = sys.argv[1]
+def export(stdscr):
+    export_dir = c_input(stdscr, "enter path: ")
 
-    print("Welcome to SneakerNet\n")
     print(f"** exporting new events to '{export_dir}'")
     print()
 
     if not os.path.isdir(export_dir):
-        print(f"** directory not found, aborting")
-        sys.exit()
+        print("directory not found, press ENTER to go back")
+        return
 
     lg = log.PCAP()
     t = gg.TRANSFER()
