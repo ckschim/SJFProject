@@ -259,12 +259,13 @@ def sub_menu(stdscr, current_row, selecter):
                 if sub_selection == "USB":
                     import_log(stdscr)
                 else:
-                    print("UDP")
+                    udp_peer.udp_start()
             else:
                 if sub_selection == "USB":
                     export(stdscr)
                 else:
-                    print("UDP")
+                    ip = c_input(stdscr, "IP: ")
+                    udp_peer.udp_start(ip)
         print_submenu(stdscr, current_row)
 
 
