@@ -245,11 +245,15 @@ def main(stdscr):
             elif menu_selection == "About":
                 print_sneaker(stdscr)
             elif menu_selection == "Exit":
-                print("shutdown..")
-                for i in range(300):
-                    time.sleep(0.02)
-                    print(".")
-                sys.exit()
+                exit_selection = c_input(stdscr,"Are you sure you want to exit? [Yes|No]")
+                if exit_selection in ["No", "N", "no", "n"]:
+                    print_menu(stdscr, 0)
+                else:
+                    print("shutdown..")
+                    for i in range(300):
+                        time.sleep(0.02)
+                        print(".")
+                    sys.exit()
             stdscr.getch()
             # if user selected last row, exit the program
             if current_row == len(menu) - 1:
