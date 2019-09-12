@@ -21,14 +21,14 @@ PUSH_PORT = 0x1002
 # ---------------------------------------------------------------------------
 
 def peer_loop(cmd_sock, push_sock, peer, push_port, peerID):
-    print(f"** talking to {peer} ({peerID}), push_port is {push_port}")
+    print(f"** talking to {peer} ({peerID}), my UDP push_port is {push_port}")
     remote_push_port = 0
     push_queue = []
 
     local_db = ldb.LOCAL_DB()
     local_db.load(LOGS_DIR)
 
-    cmd_queue = [ f'PORT {push_port}'.encode('utf8'), b'RECV 1']
+    cmd_queue = [ f'PORT {push_port}'.encode('utf8') ] # , b'RECV 1']
     if len(local_db.max) > 0:
         lst = [ f'+{base64.b64encode(fs[0]).decode("utf8")}/{fs[1]}' for fs in local_db.max.items() ]
         # print(lst)
@@ -44,15 +44,15 @@ def peer_loop(cmd_sock, push_sock, peer, push_port, peerID):
             msg = push_queue[0]
             push_queue = push_queue[1:]
             push_sock.sendto(msg, (peer[0],remote_push_port))
-        r,w,e = select.select([cmd_sock, push_sock],[],[], 0.5)
+        r,w,e = select.select([cmd_sock, push_sock],[],[], 0.1)
         if push_sock in r:
             data,_ = push_sock.recvfrom(1024)
-            print(f'-- push socket: {len(data)} bytes')
+            print(f"-- incoming push: {len(data)} bytes")
             local_db.ingest(data)
             tend = time.time() + 5
         elif cmd_sock in r:
             data,_ = cmd_sock.recvfrom(1024)
-            print(f'-- cmd socket: {data}')
+            print(f'-- incoming cmd: {data}')
             data = data.decode('utf8').split(' ')
             if data[0] == 'PORT':
                 remote_push_port = int(data[1])
@@ -62,7 +62,9 @@ def peer_loop(cmd_sock, push_sock, peer, push_port, peerID):
                     if fs[0][0] != '+':
                         continue
                     feed,seq = base64.b64decode(fs[0][1:]), int(fs[1])
+                    # print('reacting to WANT:', feed, seq)
                     while feed in local_db.db and seq in local_db.db[feed]:
+                        print(f"-- enqueue outgoing push for {fs[0][1:]}/{seq}")
                         push_queue.append(local_db.db[feed][seq])
                         seq += 1
             elif data[0] == 'HAVE':
@@ -82,7 +84,12 @@ def peer_loop(cmd_sock, push_sock, peer, push_port, peerID):
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
 
+    print("Welcome to SneakerNet\n")
+    print("** starting replication tool")
+    
     if len(sys.argv) > 1:
+        print("** peer-to-peer initiator: connecting ...")
+
         my_push_port = int(sys.argv[1])
         push_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         push_sock.bind(('', my_push_port))
@@ -95,7 +102,7 @@ if __name__ == '__main__':
         peer = ("127.0.0.1", PEER_PORT)
         # client_sock.connect(peer)
 
-        helo = b'HELO client\n'
+        helo = b'HELO initiator\n'
         for i in range(10):
             # client_sock.send(helo)
             client_sock.sendto(helo, peer)
@@ -116,6 +123,8 @@ if __name__ == '__main__':
         client_sock.close()
         push_sock.close()
     else:
+        print("** peer-to-peer responder")
+
         push_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         push_sock.bind(('', PUSH_PORT))
 
@@ -126,12 +135,12 @@ if __name__ == '__main__':
 
         client_sock = server_sock
         while True:
-            if False:
-                client_sock, peer = server_sock.accept()
-                print("Accepted connection from ", peer)
-                # data, peer = client_sock.recvfrom(1024)
-                data = client_sock.recv(2014)
-            print(f"** listing on port {PEER_PORT}, push port is {PUSH_PORT}")
+            # if False:
+            #     client_sock, peer = server_sock.accept()
+            #     print("Accepted connection from ", peer)
+            #     # data, peer = client_sock.recvfrom(1024)
+            #     data = client_sock.recv(2014)
+            print(f"** waiting on UDP port {PEER_PORT}")
             data, peer = client_sock.recvfrom(1024)
             if not data:
                 break
@@ -140,7 +149,7 @@ if __name__ == '__main__':
                 print("** received non-HELO message, trying again")
                 continue
             # client_sock.sendto(('HELO server').encode('utf8'), peer)
-            client_sock.sendto(('HELO server').encode('utf8'), peer)
+            client_sock.sendto(('HELO responder').encode('utf8'), peer)
             peer_loop(client_sock, push_sock, peer, PUSH_PORT, data[1])
             # print("Data received: ", str(data))
             # # client_sock.send('Echo => ' + str(data))
