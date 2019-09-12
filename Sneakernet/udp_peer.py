@@ -83,19 +83,16 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
 
 
 # ----------------------------------------------------------------------
-def udp_start():
+def udp_start(ip: str=None):
 
     print("Welcome to SneakerNet\n")
     print("** starting replication tool")
     
-    if len(sys.argv) > 1:
+    if ip:
         print("** peer-to-peer initiator: connecting ...")
 
-        if not ':' in sys.argv[1]:
-            peer = (sys.argv[1], PEER_PORT)
-        else:
-            peer = sys.argv[1].split(':')
-            peer = (peer[0], int(peer[1]))
+        peer = (ip, PEER_PORT)
+
         push_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         push_sock.bind(('', 0))
 
