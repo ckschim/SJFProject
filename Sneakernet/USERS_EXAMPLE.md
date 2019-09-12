@@ -1,4 +1,4 @@
-# Example 1 (creating two users, export and import)
+# Example 1: creating two users, export and import
 
 ## start with a clean Git directory
 

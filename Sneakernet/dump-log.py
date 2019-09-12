@@ -34,7 +34,7 @@ if __name__ == '__main__':
         t.from_cbor(block)
         c = t.event.content
         if c != None:
-            print(f"** {base64.b64encode(t.event.feed).decode('utf8')}/{t.event.seq}")
+            print(f"** {base64.b64encode(t.event.feed).decode('utf8')}:{t.event.seq}")
             # print(str(c, 'utf8'))
             m = json.loads(c)
 
