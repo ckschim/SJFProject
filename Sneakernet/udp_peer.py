@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# sn/udp-peer.py
+# sn/udp_peer.py
 
 # import bluetooth
 import base64
