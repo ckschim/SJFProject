@@ -46,6 +46,7 @@ MY_LOG_FILE = '1.pcap' # inside logs dir
 
 menu = ['Import', 'Export', 'Write', 'Read', 'Exit']
 
+
 def print_menu(stdscr, selected_row_idx):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
@@ -374,6 +375,7 @@ if __name__ == '__main__':
     for feed,name in sorted(feeds.items(), key=lambda x: x[1]):
         print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
 
-    # curses.wrapper(main)
+
+    curses.wrapper(main)
 
 # eof
