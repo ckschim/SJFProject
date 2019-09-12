@@ -83,7 +83,7 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
 
 
 # ----------------------------------------------------------------------
-if __name__ == '__main__':
+def udp_start():
 
     print("Welcome to SneakerNet\n")
     print("** starting replication tool")
