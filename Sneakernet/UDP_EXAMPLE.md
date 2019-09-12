@@ -34,7 +34,7 @@ Welcome to SneakerNet
 ## Bob starts UDP Peer-to-Peer replication, as a initiator
 
 ```text
-bob$ ../udp-peer.py 5000
+bob$ ../udp-peer.py 127.0.0.1
 Welcome to SneakerNet
 
 ** starting replication tool
@@ -64,6 +64,7 @@ Welcome to SneakerNet
 bob$ 
 ```
 Explanation:
+- 127.0.0.1 means that responder and initiator run on the same machine (for this demo). In a LAN, this should be replaced with the IP address of the responder machine
 - the handshake was successful (not shown in output)
 - Bob received a PORT command, saying where-to he should send events
 - Bob received from Alice a HAVE list (which feeds and their max sequence)
