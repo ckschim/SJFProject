@@ -218,15 +218,21 @@ def main(stdscr):
             stdscr.clear()
             stdscr.refresh()
             if menu_selection == "Write":
+
                 write_message(stdscr)
+
             elif menu_selection == "Import":
                 sub_menu(stdscr, current_row, menu_selection)
             elif menu_selection == "Export":
                 sub_menu(stdscr, current_row, menu_selection)
             elif menu_selection == "Read":
                 output_chat(stdscr)
+                if key == 27:
+                    print_menu(stdscr, 0)
             elif menu_selection == "About":
                 print_sneaker(stdscr)
+                if key == 27:
+                    print_menu(stdscr, 0)
             elif menu_selection == "Exit":
                 exit_selection = c_input(stdscr,"Are you sure you want to exit? [Yes|No]")
                 if exit_selection in ["No", "N", "no", "n"]:
@@ -262,15 +268,23 @@ def sub_menu(stdscr, current_row, selecter):
             if selecter == "Import":
                 if sub_selection == "USB":
                     import_log(stdscr)
+                    if key == 27:
+                        print_menu(stdscr, 0)
                 else:
                     udp_peer.udp_start()
+                    if key == 27:
+                        print_menu(stdscr, 0)
             else:
                 if sub_selection == "USB":
                     export(stdscr)
+                    if key == 27:
+                        print_menu(stdscr, 0)
                 else:
                     ip = c_input(stdscr, "IP: ")
                     udp_peer.udp_start(ip)
         print_submenu(stdscr, current_row)
+        if key == 27:
+            print_menu(stdscr, 0)
 
 
 def c_input(stdscr, prompt_str):
