@@ -1,4 +1,4 @@
-# Example 2 (syncing two peers via UDP (on the same machine))
+# Example 2: syncing two peers via UDP (on the same machine)
 
 ## Start configuration
 
