@@ -102,6 +102,10 @@ def main(stdscr):
                 stdscr.clear()
                 stdscr.refresh()
                 write_message(stdscr)
+            elif menu_selection == "Import":
+                stdscr.clear()
+                stdscr.refresh()
+                import_log(stdscr)
             stdscr.getch()
             # if user selected last row, exit the program
             if current_row == len(menu)-1:
@@ -214,16 +218,13 @@ def pp(list, name_list):
         content = item[1]['text']
         print(name, "(", timestamp,") :\n\t",content,"\n")
 
-def import_log():
-    import_dir = sys.argv[1]
+def import_log(stdscr):
 
-    print("Welcome to SneakerNet\n")
-    print(f"** importing new events from '{import_dir}'")
-    print()
+    import_dir = c_input(stdscr, "enter path: ")
 
     if not os.path.isdir(import_dir):
-        print(f"** directory not found, aborting")
-        sys.exit()
+        print("directory not found, press ENTER to go back")
+        return
 
     new_db = {}
     new_cnt = 0
