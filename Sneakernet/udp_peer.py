@@ -83,6 +83,7 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
 
 
 # ----------------------------------------------------------------------
+
 def udp_start(ip: str=None):
 
     print("Welcome to SneakerNet\n")
@@ -161,3 +162,11 @@ def udp_start(ip: str=None):
         push_sock.close()
         client_sock.close()
         server_sock.close()
+
+# ----------------------------------------------------------------------
+
+if __name__ == '__main__':
+
+    udp_start(None if len(sys.argv) == 1 else sys.argv[1])
+
+# eof
