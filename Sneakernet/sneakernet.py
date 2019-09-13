@@ -401,7 +401,7 @@ def pp(list, name_list, stdscr):
 
         mypad = curses.newpad(mypad_height, width)
         mypad.scrollok(True)
-        mypad_pos = -mypad_height
+        mypad_pos = -2
         mypad_refresh = lambda: mypad.refresh(mypad_pos + 2, 0, 0, 0, height - 1, width)
         mypad_refresh()
         try:
