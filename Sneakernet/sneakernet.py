@@ -200,7 +200,7 @@ def main(stdscr):
     # specify the current selected row
     current_row = 0
 
-    # print_sneaker(stdscr)
+    print_sneaker(stdscr)
 
     # print the menu
     print_menu(stdscr, current_row)
@@ -270,7 +270,7 @@ def sub_menu(stdscr, current_row, selecter):
                     if key == 27:
                         print_menu(stdscr, 0)
                 else:
-                    udp_peer.udp_start()
+                    udp_peer.udp_start(stdscr)
                     if key == 27:
                         print_menu(stdscr, 0)
             else:
@@ -280,7 +280,7 @@ def sub_menu(stdscr, current_row, selecter):
                         print_menu(stdscr, 0)
                 else:
                     ip = c_input(stdscr, "IP: ")
-                    udp_peer.udp_start(ip)
+                    udp_peer.udp_start(stdscr, ip)
         print_submenu(stdscr, current_row)
         if key == 27:
             print_menu(stdscr, 0)
@@ -350,9 +350,9 @@ def write_message(stdscr):
     body = {"app": "feed/message",
             "feed": my_secret['public_key'],
             "text": message}
-    stdscr.addstr("\n** successfuly created body\n")
+    scr_print(stdscr, "\n** successfuly created body\n")
     my_log_append(os.path.join(LOGS_DIR, MY_LOG_FILE), body)
-    stdscr.addstr(f"** successfuly appended to {os.path.join(LOGS_DIR, MY_LOG_FILE)}")
+    scr_print(stdscr, f"** successfuly appended to {os.path.join(LOGS_DIR, MY_LOG_FILE)}")
 
 
 def output_chat(stdscr):
@@ -376,7 +376,7 @@ def output_chat(stdscr):
                     name_list[m['feed']] = m['display_name']
                 # print(m)
             else:
-                print(f"** {n}: no content")
+                scr_print(stdscr, f"** {n}: no content")
         lg.close()
     pp(pp_list, name_list, stdscr)
 
@@ -428,13 +428,13 @@ def pp(list, name_list, stdscr):
                 #     mypad_pos -= 1
                 mypad.refresh(mypad_pos + 2, 0, 0, 0, height - 1, width - 1)
     else:
-        stdscr.addstr("No logs to show")
+        scr_print(stdscr, "No logs to show")
 
 def import_log(stdscr):
     import_dir = c_input(stdscr, "enter path: ")
 
     if not os.path.isdir(import_dir):
-        stdscr.addstr("directory not found, press ENTER to go back\n")
+        scr_print(stdscr, "directory not found, press ENTER to go back\n")
         return
 
     new_db = {}
@@ -455,7 +455,7 @@ def import_log(stdscr):
             new_db[feed][seq].append(block)
             new_cnt += 1
         lg.close()
-    stdscr.addstr(f"** found {new_cnt} event(s) in '{import_dir}'\n")
+    scr_print(stdscr, f"** found {new_cnt} event(s) in '{import_dir}'\n")
 
     have_fn = {}
     have_max = {}
@@ -480,7 +480,7 @@ def import_log(stdscr):
             if seq > have_max[feed]:
                 have_max[feed] = seq
         lg.close()
-    stdscr.addstr(f"** found {have_cnt} event(s) in '{LOGS_DIR}'\n")
+    scr_print(stdscr, f"** found {have_cnt} event(s) in '{LOGS_DIR}'\n")
 
     update_cnt = 0
     for feed in new_db:
@@ -490,7 +490,7 @@ def import_log(stdscr):
             have_max[feed] = 0
             if update_cnt == 0:
                 print()
-            stdscr.addstr(f"** creating {have_fn[feed]} for {base64.b64encode(feed).decode('utf8')}\n")
+            scr_print(stdscr, f"** creating {have_fn[feed]} for {base64.b64encode(feed).decode('utf8')}\n")
             lg.open(have_fn[feed], 'w')
             lg.close()
             max_fn_number += 1
@@ -506,23 +506,22 @@ def import_log(stdscr):
             have_max[feed] += 1
             if update_cnt == 0:
                 print()
-            stdscr.addstr(f"** import {base64.b64encode(feed).decode('utf8')}/{have_max[feed]}\n")
+            scr_print(stdscr, f"** import {base64.b64encode(feed).decode('utf8')}/{have_max[feed]}\n")
             lg.write(new_db[feed][have_max[feed]][0])
             update_cnt += 1
         lg.close()
 
-    print()
-    stdscr.addstr(f"** imported {update_cnt} event(s) to the '{LOGS_DIR}' directory\n")
+    scr_print(stdscr, f"** imported {update_cnt} event(s) to the '{LOGS_DIR}' directory\n")
 
 
 def export(stdscr):
     export_dir = c_input(stdscr, "enter path: ")
 
-    stdscr.addstr(f"** exporting new events to '{export_dir}'\n")
+    scr_print(stdscr, f"** exporting new events to '{export_dir}'\n")
     print()
 
     if not os.path.isdir(export_dir):
-        stdscr.addstr("directory not found, press ENTER to go back\n")
+        scr_print(stdscr, "directory not found, press ENTER to go back\n")
         return
 
     lg = log.PCAP()
@@ -545,7 +544,7 @@ def export(stdscr):
                 have_max[feed] = seq
             have_cnt += 1
         lg.close()
-    stdscr.addstr(f"** found {have_cnt} event(s) in directory '{LOGS_DIR}'\n")
+    scr_print(stdscr, f"** found {have_cnt} event(s) in directory '{LOGS_DIR}'\n")
 
     target_db = {}
     target_cnt = 0
@@ -563,7 +562,7 @@ def export(stdscr):
             # target_db[feed][seq].append(block)
             target_cnt += 1
         lg.close()
-    stdscr.addstr(f"** found {target_cnt} event(s) in target directory '{export_dir}'\n")
+    scr_print(stdscr, f"** found {target_cnt} event(s) in target directory '{export_dir}'\n")
 
     # create file with unique file name
     log_fn = None
@@ -580,7 +579,7 @@ def export(stdscr):
             if not feed in target_db or not i + 1 in target_db[feed]:
                 if update_cnt == 0:
                     print()
-                stdscr.addstr(f"** exporting {base64.b64encode(feed).decode('utf8')}/{i + 1}\n")
+                scr_print(stdscr, f"** exporting {base64.b64encode(feed).decode('utf8')}/{i + 1}\n")
                 lg.write(have_db[feed][i + 1])
                 update_cnt += 1
     lg.close()
@@ -588,12 +587,15 @@ def export(stdscr):
     print()
     if update_cnt == 0:
         os.unlink(log_fn)
-        stdscr.addstr("** no events exported\n")
+        scr_print(stdscr, "** no events exported\n")
     else:
         stdscr.addstr(f"** exported {update_cnt} event(s) to '{log_fn}'\n")
 
     # eof
 
+def scr_print(stdscr, content):
+    stdscr.addstr(f"{content}\n")
+    stdscr.refresh()
 
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
@@ -668,5 +670,7 @@ if __name__ == '__main__':
 
     os.environ.setdefault('ESCDELAY', '0')
     curses.wrapper(main)
+
+
 
 # eof

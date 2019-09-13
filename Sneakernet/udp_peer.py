@@ -20,9 +20,9 @@ PEER_PORT = 0x1001
 
 # ---------------------------------------------------------------------------
 
-def peer_loop(cmd_sock, push_sock, peer, peerID):
+def peer_loop(stdscr, cmd_sock, push_sock, peer, peerID):
     push_port = push_sock.getsockname()[1]
-    print(f"** talking to {peer} ({peerID}), my UDP push_port is {push_port}")
+    pad_print(stdscr, f"** talking to {peer} ({peerID}), my UDP push_port is {push_port}")
     remote_push_port = 0
     push_queue = []
 
@@ -33,7 +33,7 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
     cmd_queue = [ f'PORT {push_port}'.encode('utf8') ] # , b'RECV 1']
     if len(local_db.max) > 0:
         lst = [ f'+{base64.b64encode(fs[0]).decode("utf8")}:{fs[1]}' for fs in local_db.max.items() ]
-        # print(lst)
+        # pad_print(stdscr, lst)
         cmd_queue.append(f'HAVE {" ".join(lst)}'.encode('utf'))
     #
     tend = time.time() + 5
@@ -49,12 +49,12 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
         r,w,e = select.select([cmd_sock, push_sock],[],[], 0.1)
         if push_sock in r:
             data,_ = push_sock.recvfrom(1024)
-            print(f"-- incoming push: {len(data)} bytes")
+            pad_print(stdscr, f"-- incoming push: {len(data)} bytes")
             local_db.ingest(data)
             tend = time.time() + 5
         elif cmd_sock in r:
             data,_ = cmd_sock.recvfrom(1024)
-            print(f'-- incoming cmd: {data}')
+            pad_print(stdscr, f'-- incoming cmd: {data}')
             data = data.decode('utf8').split(' ')
             if data[0] == 'PORT':
                 remote_push_port = int(data[1])
@@ -64,9 +64,9 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
                     if fs[0][0] != '+':
                         continue
                     feed,seq = base64.b64decode(fs[0][1:]), int(fs[1])
-                    # print('reacting to WANT:', feed, seq)
+                    # pad_print(stdscr, 'reacting to WANT:', feed, seq)
                     while feed in local_db.db and seq in local_db.db[feed]:
-                        print(f"-- enqueue outgoing push for {fs[0][1:]}:{seq}")
+                        pad_print(stdscr, f"-- enqueue outgoing push for {fs[0][1:]}:{seq}")
                         push_queue.append(local_db.db[feed][seq])
                         seq += 1
             elif data[0] == 'HAVE':
@@ -80,17 +80,17 @@ def peer_loop(cmd_sock, push_sock, peer, peerID):
                     elif seq > local_db.max[feed]:
                         cmd_queue.append(f'WANT +{fs[0][1:]}:{local_db.max[feed]+1}'.encode('utf8'))
 
-    print("** peer_loop done")
+    pad_print(stdscr, "** peer_loop done")
 
 
 # ----------------------------------------------------------------------
-def udp_start(ip: str=None):
+def udp_start(stdscr, ip: str=None):
 
-    print("Welcome to SneakerNet\n")
-    print("** starting replication tool")
-    
+    pad_print(stdscr, "Welcome to SneakerNet")
+    pad_print(stdscr, "** starting replication tool")
+
     if ip:
-        print("** peer-to-peer initiator: connecting ...")
+        pad_print(stdscr, "** peer-to-peer initiator: connecting ...")
 
         peer = (ip, PEER_PORT)
 
@@ -104,7 +104,7 @@ def udp_start(ip: str=None):
 
         # peer = ("127.0.0.1", )
         # client_sock.connect(peer)
-        print(f"** contacting peer {peer[0]}:{peer[1]}")
+        pad_print(stdscr, f"** contacting peer {peer[0]}:{peer[1]}")
 
         helo = b'HELO initiator\n'
         for i in range(10):
@@ -115,19 +115,19 @@ def udp_start(ip: str=None):
                 data, peer = client_sock.recvfrom(1024)
                 data = data.decode('utf8').split()
                 if data[0] != 'HELO':
-                    print("** received non-HELO message, trying again")
+                    pad_print(stdscr, "** received non-HELO message, trying again")
                     continue
-                peer_loop(client_sock, push_sock, peer, data[1])
+                peer_loop(stdscr, client_sock, push_sock, peer, data[1])
                 client_sock.close()
                 push_sock.close()
                 sys.exit()
             except socket.timeout:
-                print('** request timed out')
-        print("** giving up")
+                pad_print(stdscr, '** request timed out')
+        pad_print(stdscr, "** giving up")
         client_sock.close()
         push_sock.close()
     else:
-        print("** peer-to-peer responder")
+        pad_print(stdscr, "** peer-to-peer responder")
 
         push_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         push_sock.bind(('', 0))
@@ -141,24 +141,29 @@ def udp_start(ip: str=None):
         while True:
             # if False:
             #     client_sock, peer = server_sock.accept()
-            #     print("Accepted connection from ", peer)
+            #     pad_print(stdscr, "Accepted connection from ", peer)
             #     # data, peer = client_sock.recvfrom(1024)
             #     data = client_sock.recv(2014)
-            print(f"** waiting on UDP port {PEER_PORT}")
+            pad_print(stdscr, f"** waiting on UDP port {PEER_PORT}")
             data, peer = client_sock.recvfrom(1024)
             if not data:
                 break
             data = data.decode('utf8').split()
             if data[0] != 'HELO':
-                print("** received non-HELO message, trying again")
+                pad_print(stdscr, "** received non-HELO message, trying again")
                 continue
             # client_sock.sendto(('HELO server').encode('utf8'), peer)
             client_sock.sendto(('HELO responder').encode('utf8'), peer)
-            peer_loop(client_sock, push_sock, peer, data[1])
-            # print("Data received: ", str(data))
+            peer_loop(stdscr, client_sock, push_sock, peer, data[1])
+            # pad_print(stdscr, "Data received: ", str(data))
             # # client_sock.send('Echo => ' + str(data))
             # client_sock.sendto(('Echo => ' + str(data)).encode('utf8'), addr)
 
         push_sock.close()
         client_sock.close()
         server_sock.close()
+
+def pad_print(stdscr, content):
+    stdscr.addstr(f"{content}\n")
+    stdscr.refresh()
+    
