@@ -56,11 +56,11 @@ submenu = ["USB", "UDP"]
 
 def print_sneaker(stdscr):
     curses.echo()
-    #Just don't change the try catch or else it will fail
+    # Just don't change the try catch or else it will fail
     try:
         stdscr.addstr("""
-                                                                                                                                                              
-                                                                                                                      
+
+
                                   ,/((//*,.                                                                           
                                  (#%%##%%%%%##/                                                                       
                                .#%%%%#%&&&&&&&%%#(,                                                                   
@@ -96,22 +96,22 @@ def print_sneaker(stdscr):
             .%  %&&&&&&&&&&&&&&&       &&&&&&&&&@&@&&&              ./###.                                             
     ...       %/ .&&&&&&&&&&&&%#.      (&&&&&&&&@&&&&&.                        *##                                     
                ..  ,,,,,,,,......       ,,,,,,,,,,,,,,,,,,,,.....                ..                                   
-                                                                                                                      
+
        @@@   @@@   @@@  @@@@@@@(  @@,       #@@@@@@   .@@@@@@.   /@@@    @@@   @@@@@@@(      @@@@@@@@@   @@@@@@*       
        .@@  /@@@(  @@.  @@#       @@,      @@@    %  @@@    @@@  /@@@@  @@@@   @@@              @@&    &@@    @@@      
         @@@ @@ @@ @@@   @@@@@@@   @@,     &@@       .@@.    .@@. /@@/@&@@ @@   @@@@@@@          @@&    @@&     @@(     
          @@#@& @@(@@    @@#       @@,     %@@        @@/    /@@  /@@ &@@  @@   @@@              @@&    @@@    .@@,     
          @@@@   @@@@    @@@@@@@(  @@@@@@@  @@@@**@@  *@@@**@@@*  /@@      @@   @@@@@@@(         @@&     @@@(,@@@%      
                                               *#/       ,((,                                               /#,         
-                                                                                                                      
-                                                                                                                      
-                                                                                                                      
+
+
+
         @@@@@@@&  @@@@   @@   @@@@@@@@    @@@@     @@@  .@@@  @@@@@@@@  @@@@@@@@   @@@@   @@&  &@@@@@@@ @@@@@@@@@      
        @@@        @@@@@  @@   @@@        (@@@@@    @@@ @@@    @@@       @@#   @@*  @@@@@  @@&  &@@         @@@         
         @@@@@@@   @@ (@@ @@   @@@@@@@    @@  @@/   @@@@@&     @@@@@@@   @@@@@@@%   @@*.@@#@@&  &@@@@@@*    @@@         
              @@@  @@   @@@@   @@@       @@@@@@@@   @@@ @@@    @@@       @@# @@@    @@*  @@@@&  &@@         @@@         
        @@@@@@@@,  @@    @@@   @@@@@@@@ @@@    @@@  @@@  (@@@  @@@@@@@@  @@#  .@@@  @@*   @@@&  &@@@@@@@    @@@         
-                                                                                                                      
+
                                              .................,,,,,,,,,          .,,,,,,,,,,,,...                      
                                          ##.  #&&&&&&&&&&&&&&&&@@@@@@&&*. ./&%&&@@@@@@@&&&&&&@&&%                      
                                .          #%%   &&@@@@@@@@@@@@@@@@@@@@@@@&&@&&@&@@@@@@@@&&&&&&&&                     
@@ -141,7 +141,7 @@ def print_sneaker(stdscr):
                                                                                  ...................... .   ..         
                                                                                       ...................   .          
                                                                                              .....                     
-                                                                                                                  
+
 
 
    """)
@@ -200,7 +200,7 @@ def main(stdscr):
     # specify the current selected row
     current_row = 0
 
-    print_sneaker(stdscr)
+    # print_sneaker(stdscr)
 
     # print the menu
     print_menu(stdscr, current_row)
@@ -234,7 +234,7 @@ def main(stdscr):
                 if key == 27:
                     print_menu(stdscr, 0)
             elif menu_selection == "Exit":
-                exit_selection = c_input(stdscr,"Are you sure you want to exit? [Yes|No]")
+                exit_selection = c_input(stdscr, "Are you sure you want to exit? [Yes|No]")
                 if exit_selection in ["No", "N", "no", "n"]:
                     print_menu(stdscr, 0)
                 else:
@@ -245,7 +245,6 @@ def main(stdscr):
                     sys.exit()
             stdscr.getch()
             # if user selected last row, exit the program
-
 
         print_menu(stdscr, current_row)
 
@@ -351,9 +350,9 @@ def write_message(stdscr):
     body = {"app": "feed/message",
             "feed": my_secret['public_key'],
             "text": message}
-    print("\n** successfuly created body")
+    stdscr.addstr("\n** successfuly created body\n")
     my_log_append(os.path.join(LOGS_DIR, MY_LOG_FILE), body)
-    print("** successfuly appended to", os.path.join(LOGS_DIR, MY_LOG_FILE), "\n")
+    stdscr.addstr(f"** successfuly appended to {os.path.join(LOGS_DIR, MY_LOG_FILE)}")
 
 
 def output_chat(stdscr):
@@ -382,29 +381,60 @@ def output_chat(stdscr):
     pp(pp_list, name_list, stdscr)
 
 
-def pp(list, name_list,stdscr):
+def pp(list, name_list, stdscr):
     sorted(list)
-    for item in list:
-        timestamp = str(datetime.fromtimestamp(item[0]))
-        feed = item[1]['feed']
-        name = name_list.get(feed)
-        content = item[1]['text']
-        curses.echo()
-        output = name + "(" + timestamp + ") :\n\t" + content + "\n\n"
+    output = ""
+    if list:
+        for item in list:
+            timestamp = str(datetime.fromtimestamp(item[0]))
+            feed = item[1]['feed']
+            name = name_list.get(feed)
+            content = item[1]['text']
+            curses.echo()
+            output += f"({timestamp}) {name}:\t{content}\n\n"
+
+
+        height, width = stdscr.getmaxyx()
+
+        # Create a curses pad (pad size is height + 10)
+        mypad_height = len(list) * 4
+
+        mypad = curses.newpad(mypad_height, width)
+        mypad.scrollok(True)
+        mypad_pos = -mypad_height
+        mypad_refresh = lambda: mypad.refresh(mypad_pos + 2, 0, 0, 0, height - 1, width)
+        mypad_refresh()
         try:
-            stdscr.addstr(output)
+            mypad.addstr(output)
         except:
             pass
         finally:
-            stdscr.refresh()
-    print("press ENTER to go back")
+            mypad_refresh()
 
+        while 1:
+            key = stdscr.getch()
+            if key == curses.KEY_DOWN and mypad_pos < mypad.getyx()[0] - height - 1:
+                mypad_pos += 1
+                mypad_refresh()
+            elif key == curses.KEY_UP and mypad_pos > -2:
+                mypad_pos -= 1
+                mypad_refresh()
+            elif key == 27:  # ESC
+                print_menu(stdscr, 0)
+                break
+            elif key == curses.KEY_RESIZE:
+                height, width = stdscr.getmaxyx()
+                # while mypad_pos > mypad.getyx()[0] - height - 1:
+                #     mypad_pos -= 1
+                mypad.refresh(mypad_pos + 2, 0, 0, 0, height - 1, width - 1)
+    else:
+        stdscr.addstr("No logs to show")
 
 def import_log(stdscr):
     import_dir = c_input(stdscr, "enter path: ")
 
     if not os.path.isdir(import_dir):
-        print("directory not found, press ENTER to go back")
+        stdscr.addstr("directory not found, press ENTER to go back\n")
         return
 
     new_db = {}
@@ -425,7 +455,7 @@ def import_log(stdscr):
             new_db[feed][seq].append(block)
             new_cnt += 1
         lg.close()
-    print(f"** found {new_cnt} event(s) in '{import_dir}'")
+    stdscr.addstr(f"** found {new_cnt} event(s) in '{import_dir}'\n")
 
     have_fn = {}
     have_max = {}
@@ -450,7 +480,7 @@ def import_log(stdscr):
             if seq > have_max[feed]:
                 have_max[feed] = seq
         lg.close()
-    print(f"** found {have_cnt} event(s) in '{LOGS_DIR}'")
+    stdscr.addstr(f"** found {have_cnt} event(s) in '{LOGS_DIR}'\n")
 
     update_cnt = 0
     for feed in new_db:
@@ -460,7 +490,7 @@ def import_log(stdscr):
             have_max[feed] = 0
             if update_cnt == 0:
                 print()
-            print(f"** creating {have_fn[feed]} for {base64.b64encode(feed).decode('utf8')}")
+            stdscr.addstr(f"** creating {have_fn[feed]} for {base64.b64encode(feed).decode('utf8')}\n")
             lg.open(have_fn[feed], 'w')
             lg.close()
             max_fn_number += 1
@@ -476,23 +506,23 @@ def import_log(stdscr):
             have_max[feed] += 1
             if update_cnt == 0:
                 print()
-            print(f"** import {base64.b64encode(feed).decode('utf8')}/{have_max[feed]}")
+            stdscr.addstr(f"** import {base64.b64encode(feed).decode('utf8')}/{have_max[feed]}\n")
             lg.write(new_db[feed][have_max[feed]][0])
             update_cnt += 1
         lg.close()
 
     print()
-    print(f"** imported {update_cnt} event(s) to the '{LOGS_DIR}' directory")
+    stdscr.addstr(f"** imported {update_cnt} event(s) to the '{LOGS_DIR}' directory\n")
 
 
 def export(stdscr):
     export_dir = c_input(stdscr, "enter path: ")
 
-    print(f"** exporting new events to '{export_dir}'")
+    stdscr.addstr(f"** exporting new events to '{export_dir}'\n")
     print()
 
     if not os.path.isdir(export_dir):
-        print("directory not found, press ENTER to go back")
+        stdscr.addstr("directory not found, press ENTER to go back\n")
         return
 
     lg = log.PCAP()
@@ -515,7 +545,7 @@ def export(stdscr):
                 have_max[feed] = seq
             have_cnt += 1
         lg.close()
-    print(f"** found {have_cnt} event(s) in directory '{LOGS_DIR}'")
+    stdscr.addstr(f"** found {have_cnt} event(s) in directory '{LOGS_DIR}'\n")
 
     target_db = {}
     target_cnt = 0
@@ -533,7 +563,7 @@ def export(stdscr):
             # target_db[feed][seq].append(block)
             target_cnt += 1
         lg.close()
-    print(f"** found {target_cnt} event(s) in target directory '{export_dir}'")
+    stdscr.addstr(f"** found {target_cnt} event(s) in target directory '{export_dir}'\n")
 
     # create file with unique file name
     log_fn = None
@@ -550,7 +580,7 @@ def export(stdscr):
             if not feed in target_db or not i + 1 in target_db[feed]:
                 if update_cnt == 0:
                     print()
-                print(f"** exporting {base64.b64encode(feed).decode('utf8')}/{i + 1}")
+                stdscr.addstr(f"** exporting {base64.b64encode(feed).decode('utf8')}/{i + 1}\n")
                 lg.write(have_db[feed][i + 1])
                 update_cnt += 1
     lg.close()
@@ -558,9 +588,9 @@ def export(stdscr):
     print()
     if update_cnt == 0:
         os.unlink(log_fn)
-        print("** no events exported")
+        stdscr.addstr("** no events exported\n")
     else:
-        print(f"** exported {update_cnt} event(s) to '{log_fn}'")
+        stdscr.addstr(f"** exported {update_cnt} event(s) to '{log_fn}'\n")
 
     # eof
 
@@ -636,6 +666,7 @@ if __name__ == '__main__':
     for feed, name in sorted(feeds.items(), key=lambda x: x[1]):
         print(f"- @{base64.b64encode(feed).decode('utf8')}   {name}")
 
+    os.environ.setdefault('ESCDELAY', '0')
     curses.wrapper(main)
 
 # eof
